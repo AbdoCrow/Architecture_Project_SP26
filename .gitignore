@@ -1,0 +1,44 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# VS Code
+.vscode/
+
+# Simulator and build artifacts
+*.o
+*.vcd
+*.wlf
+*.vho
+*.cf
+
+# Temporary files
+*.swp
+*~
+.DS_Store
+
+# Byte-compiled / optimized / DLL files
+*.so
+*.dylib
+
+# Assemblers / generated files
+*.hex
+*.bin
+
+# Logs
+*.log
+
+# Ignore git repo created by mistake
+/.git
+work/
+transcript
+*.wlf
+*.log
+*.jou
+*.pb
+*.mem
+*.out
+*.pyc
+__pycache__/
+.vscode/

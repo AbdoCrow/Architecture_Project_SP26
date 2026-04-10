@@ -1,0 +1,17 @@
+LIBRARY IEEE;
+USE IEEE.STD_LOGIC_1164.ALL;
+
+ENTITY mux_2to1 IS
+    GENERIC (WIDTH : INTEGER := 32);
+    PORT (
+        input_0 : IN STD_LOGIC_VECTOR(WIDTH - 1 DOWNTO 0);
+        input_1 : IN STD_LOGIC_VECTOR(WIDTH - 1 DOWNTO 0);
+        sel : IN STD_LOGIC;
+        output : OUT STD_LOGIC_VECTOR(WIDTH - 1 DOWNTO 0)
+    );
+END ENTITY mux_2to1;
+
+ARCHITECTURE rtl OF mux_2to1 IS
+BEGIN
+    -- TODO: implement 2:1 mux
+END ARCHITECTURE rtl;
