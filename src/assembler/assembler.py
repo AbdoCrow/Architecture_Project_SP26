@@ -71,7 +71,10 @@ class RISCAssembler:
         self.type4_no_op = ['RET', 'RTI']
         self.type4_index = ['INT']
         
-        self.memory_size = 2**18
+        # Unified memory is 4KB x 32-bit words.
+        self.memory_size = 2**12
+        self.address_bits = 12
+        self.max_address = self.memory_size - 1
         self.labels: Dict[str, int] = {}
         self.current_address = 0
         
@@ -88,6 +91,39 @@ class RISCAssembler:
         if reg not in self.registers:
             raise ValueError(f"Invalid register: {reg}")
         return self.registers[reg]
+
+    def parse_numeric_value(self, value_str: str) -> int:
+        """Parse numeric token supporting binary, hex, and decimal.
+        Defaults to hexadecimal (all numbers in test cases are hexadecimal).
+        """
+        value_str = value_str.strip().replace(',', '')
+
+        if value_str.upper().startswith('0X'):
+            return int(value_str, 16)
+        if value_str.upper().startswith('0B'):
+            return int(value_str, 2)
+
+        # Default to hexadecimal; fallback to decimal if hex parsing fails.
+        try:
+            return int(value_str, 16)
+        except ValueError:
+            return int(value_str, 10)
+
+    def parse_address_immediate(self, addr: str, allow_labels: bool = False) -> str:
+        """Parse absolute address immediate constrained by 4KB memory space."""
+        addr = addr.strip().replace(',', '')
+
+        if allow_labels and addr in self.labels:
+            value = self.labels[addr]
+        else:
+            value = self.parse_numeric_value(addr)
+
+        if value < 0 or value > self.max_address:
+            raise ValueError(
+                f"Address out of range for 4KB memory: {addr} (valid: 0x000..0x{self.max_address:03X})"
+            )
+
+        return format(value, f'0{self.address_bits}b')
     
     def parse_immediate(self, imm: str, bits: int = 16, allow_labels: bool = False) -> str:
         """Parse immediate value to binary.
@@ -98,17 +134,7 @@ class RISCAssembler:
         if allow_labels and imm in self.labels:
             value = self.labels[imm]
         else:
-            if imm.upper().startswith('0X'):
-                value = int(imm, 16)
-            elif imm.upper().startswith('0B'):
-                value = int(imm, 2)
-            else:
-                # Default to hexadecimal (all numbers in test cases are hexadecimal)
-                # Fallback to decimal only if hex parsing fails (invalid hex characters)
-                try:
-                    value = int(imm, 16)
-                except ValueError:
-                    value = int(imm, 10)
+            value = self.parse_numeric_value(imm)
         
         if value < 0:
             value = (1 << bits) + value
@@ -119,19 +145,7 @@ class RISCAssembler:
         """Parse a data value (32-bit) supporting binary, hex, and decimal.
         Defaults to hexadecimal (all numbers in test cases are hexadecimal).
         """
-        value_str = value_str.strip().replace(',', '')
-        
-        if value_str.upper().startswith('0X'):
-            return int(value_str, 16)
-        elif value_str.upper().startswith('0B'):
-            return int(value_str, 2)
-        else:
-            # Default to hexadecimal (all numbers in test cases are hexadecimal)
-            # Fallback to decimal only if hex parsing fails (invalid hex characters)
-            try:
-                return int(value_str, 16)
-            except ValueError:
-                return int(value_str, 10)
+        return self.parse_numeric_value(value_str)
     
     def parse_offset_register(self, operand: str) -> Tuple[str, str]:
         """Parse offset(register) format"""
@@ -149,17 +163,8 @@ class RISCAssembler:
     
     def get_instruction_size(self, mnemonic: str) -> int:
         """Return number of words this instruction occupies"""
-        mnemonic = mnemonic.upper()
-        
-        two_word_instructions = (
-            self.type2_imm + self.type3_imm + 
-            self.type3_offset + self.type4_imm + self.type4_index
-        )
-        
-        if mnemonic in two_word_instructions:
-            return 2
-        else:
-            return 1
+        _ = mnemonic.upper()
+        return 1
     
     def first_pass(self, lines: List[str]) -> List[Tuple[int, str, int, bool]]:
         """First pass: collect labels and calculate addresses
@@ -183,16 +188,12 @@ class RISCAssembler:
                     raise ValueError(f"Line {line_num}: Invalid .ORG directive: {original_line}")
                 
                 addr_str = parts[1]
-                # Parse address - default to hexadecimal (all numbers in test cases are hexadecimal)
-                if addr_str.upper().startswith('0X'):
-                    self.current_address = int(addr_str, 16)
-                else:
-                    try:
-                        # Default to hexadecimal
-                        self.current_address = int(addr_str, 16)
-                    except ValueError:
-                        # Fallback to decimal only if hex parsing fails
-                        self.current_address = int(addr_str, 10)
+                self.current_address = self.parse_numeric_value(addr_str)
+                if self.current_address < 0 or self.current_address > self.max_address:
+                    raise ValueError(
+                        f"Line {line_num}: .ORG address out of 4KB range: {addr_str} "
+                        f"(valid: 0x000..0x{self.max_address:03X})"
+                    )
                 expect_data_value = True  # Next non-empty line should be a data value
                 continue
             
@@ -202,6 +203,12 @@ class RISCAssembler:
                 
                 if label in self.labels:
                     raise ValueError(f"Line {line_num}: Duplicate label '{label}'")
+
+                if self.current_address < 0 or self.current_address > self.max_address:
+                    raise ValueError(
+                        f"Line {line_num}: Label '{label}' resolved outside 4KB range "
+                        f"at 0x{self.current_address:X}"
+                    )
                 
                 self.labels[label] = self.current_address
                 line = instruction_part.strip()
@@ -231,15 +238,14 @@ class RISCAssembler:
                 else:
                     # Try to parse as a number (defaults to hexadecimal)
                     try:
-                        value_str = parts[0]
-                        if value_str.upper().startswith('0X'):
-                            value = int(value_str, 16)
-                        elif value_str.upper().startswith('0B'):
-                            value = int(value_str, 2)
-                        else:
-                            value = int(value_str, 16)  # Default to hexadecimal (all numbers in test cases are hexadecimal)
+                        self.parse_numeric_value(parts[0])
                         processed_lines.append((self.current_address, line, line_num, True))
                         self.current_address += 1
+                        if self.current_address > self.memory_size:
+                            raise ValueError(
+                                f"Line {line_num}: Data placement exceeded memory limit "
+                                f"(last valid address: 0x{self.max_address:03X})"
+                            )
                         expect_data_value = False
                         continue
                     except ValueError:
@@ -249,14 +255,21 @@ class RISCAssembler:
             mnemonic = parts[0].upper()
             if mnemonic not in self.opcodes:
                 raise ValueError(f"Line {line_num}: Unknown instruction '{mnemonic}': {original_line}")
+
+            instr_size = self.get_instruction_size(mnemonic)
+            if self.current_address + instr_size - 1 > self.max_address:
+                raise ValueError(
+                    f"Line {line_num}: Instruction '{mnemonic}' at address 0x{self.current_address:X} "
+                    f"exceeds 4KB memory range"
+                )
             
             processed_lines.append((self.current_address, line, line_num, False))
-            self.current_address += self.get_instruction_size(mnemonic)
+            self.current_address += instr_size
         
         return processed_lines
     
     def assemble_instruction(self, line: str, line_num: int) -> List[str]:
-        """Assemble a single instruction into machine code (one or two words)"""
+        """Assemble a single instruction into machine code (single 32-bit word)."""
         parts = re.split(r'[,\s]+', line.strip())
         parts = [p for p in parts if p]
         
@@ -271,14 +284,14 @@ class RISCAssembler:
             elif mnemonic in self.type1_one_op:
                 if len(parts) < 2:
                     raise ValueError(f"{mnemonic} requires a register operand")
-                rd = self.parse_register(parts[1])
-                instructions.append(opcode + rd + '0' * 24)
+                rop = self.parse_register(parts[1])
+                instructions.append(opcode + rop + rop + '0' * 21)
             
             elif mnemonic in self.type1_one_op_special:
                 if len(parts) < 2:
                     raise ValueError(f"{mnemonic} requires a register operand")
-                rs = self.parse_register(parts[1])
-                instructions.append(opcode + '000' + rs + '000' + '0' * 18)
+                rop = self.parse_register(parts[1])
+                instructions.append(opcode + rop + rop + '0' * 21)
             
             elif mnemonic == 'MOV':
                 # MOV Rd, Rs - first operand is destination, second is source
@@ -311,20 +324,19 @@ class RISCAssembler:
                 rs = self.parse_register(parts[2])
                 # allow labels as immediates for IADD as well (flexible)
                 imm = self.parse_immediate(parts[3], 16, allow_labels=True)
-                instructions.append(opcode + rd + '000' + rs + '0' * 18)
-                instructions.append('0' * 16 + imm)
+                instructions.append(opcode + rd + '000' + rs + '00' + imm)
             
             elif mnemonic == 'PUSH':
                 if len(parts) < 2:
                     raise ValueError("PUSH requires a register operand")
-                rs = self.parse_register(parts[1])
-                instructions.append(opcode + '000' + rs + '000' + '0' * 18)
+                rop = self.parse_register(parts[1])
+                instructions.append(opcode + rop + rop + '0' * 21)
             
             elif mnemonic == 'POP':
                 if len(parts) < 2:
                     raise ValueError("POP requires a register operand")
-                rd = self.parse_register(parts[1])
-                instructions.append(opcode + rd + '0' * 24)
+                rop = self.parse_register(parts[1])
+                instructions.append(opcode + rop + rop + '0' * 21)
             
             elif mnemonic in self.type3_imm:
                 if len(parts) < 3:
@@ -332,8 +344,7 @@ class RISCAssembler:
                 rd = self.parse_register(parts[1])
                 # Allow labels as immediates (LDM <Rd>, label)
                 imm = self.parse_immediate(parts[2], 16, allow_labels=True)
-                instructions.append(opcode + rd + '0' * 24)
-                instructions.append('0' * 16 + imm)
+                instructions.append(opcode + rd + '0' * 8 + imm)
             
             elif mnemonic == 'LDD':
                 if len(parts) < 3:
@@ -341,8 +352,7 @@ class RISCAssembler:
                 rd = self.parse_register(parts[1])
                 offset_part = ''.join(parts[2:])
                 offset, rs = self.parse_offset_register(offset_part)
-                instructions.append(opcode + rd + '000' + rs + '0' * 18)
-                instructions.append('0' * 16 + offset)
+                instructions.append(opcode + rd + '000' + rs + '00' + offset)
             
             elif mnemonic == 'STD':
                 if len(parts) < 3:
@@ -350,22 +360,20 @@ class RISCAssembler:
                 rs1 = self.parse_register(parts[1])
                 offset_part = ''.join(parts[2:])
                 offset, rs2 = self.parse_offset_register(offset_part)
-                instructions.append(opcode + '000' + rs1 + rs2 + '0' * 18)
-                instructions.append('0' * 16 + offset)
+                instructions.append(opcode + '000' + rs1 + rs2 + '00' + offset)
             
             elif mnemonic in self.type4_imm:
                 if len(parts) < 2:
                     raise ValueError(f"{mnemonic} requires an immediate address value")
-                # Allow labels for branch/jump/call immediates
-                imm = self.parse_immediate(parts[1], 16, allow_labels=True)
-                instructions.append(opcode + '0' * 27)
-                instructions.append('0' * 16 + imm)
+                # Address immediate is constrained to 12 bits for 4KB memory.
+                addr12 = self.parse_address_immediate(parts[1], allow_labels=True)
+                instructions.append(opcode + '0' * 15 + addr12)
             
             elif mnemonic in self.type4_no_op:
                 instructions.append(opcode + '0' * 27)
             
             elif mnemonic in self.type4_index:
-                # INT instruction - TWO words
+                # INT instruction - single word
                 if len(parts) < 2:
                     raise ValueError("INT requires an index (0 or 1)")
                 index_val = parts[1].strip().replace(',', '')
@@ -376,10 +384,8 @@ class RISCAssembler:
                 if index not in [0, 1]:
                     raise ValueError(f"INT index must be 0 or 1, got: {index}")
                 
-                # First word: opcode + zeros
-                instructions.append(opcode + '0' * 27)
-                # Second word: zeros + index(2 bits)
-                instructions.append('0' * 30 + format(index, '02b'))
+                # Single-word encoding: opcode + zeros + index(2 bits)
+                instructions.append(opcode + '0' * 25 + format(index, '02b'))
             
             else:
                 raise ValueError(f"Unhandled instruction type: {mnemonic}")
@@ -431,7 +437,7 @@ class RISCAssembler:
                         if address < self.memory_size:
                             memory[address] = instruction
                         else:
-                            print(f"  Warning: Address {address} exceeds memory size")
+                            raise ValueError(f"Address {address} exceeds memory size")
                     else:
                         # This is an instruction
                         instructions = self.assemble_instruction(line, line_num)
@@ -440,7 +446,7 @@ class RISCAssembler:
                             if mem_addr < self.memory_size:
                                 memory[mem_addr] = instruction
                             else:
-                                print(f"  Warning: Address {mem_addr} exceeds memory size")
+                                raise ValueError(f"Address {mem_addr} exceeds memory size")
                 except Exception as e:
                     error_count += 1
                     print(f"  ERROR at line {line_num}: {line}")
