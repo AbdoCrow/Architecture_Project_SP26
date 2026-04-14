@@ -1,6 +1,7 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE IEEE.NUMERIC_STD.ALL;
+USE work.isa_defs_pkg.ALL;
 
 ENTITY processor IS
     PORT (
@@ -29,6 +30,7 @@ BEGIN
     -- TODO: integrate 6 stages
     -- Fetch -> Decode -> Execute-1 -> Execute-2 -> Memory -> Write-Back
     -- TODO: integrate IF/ID, ID/EX1, EX1/EX2, EX2/MEM, MEM/WB pipeline registers
-    -- TODO: integrate control unit, forwarding unit, hazard control, static branch predictor
+    -- TODO: integrate control unit, forwarding unit, hazard control, dynamic branch predictor
+    -- TODO: use internal opcodes OPCODE_SWAP2 / OPCODE_INT2 / OPCODE_INT3 in decode-injected flow
     -- TODO: connect unified memory path for instruction fetch + data memory operations
 END ARCHITECTURE rtl;

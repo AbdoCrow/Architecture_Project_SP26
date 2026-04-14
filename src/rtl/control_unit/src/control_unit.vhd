@@ -1,47 +1,45 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
+USE work.isa_defs_pkg.ALL;
 
 ENTITY control_unit IS
     PORT (
-        opcode : IN STD_LOGIC_VECTOR(4 DOWNTO 0);
         clk : IN STD_LOGIC;
         reset : IN STD_LOGIC;
         intr_in : IN STD_LOGIC;
+        instr : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        opcode : IN opcode_t;
 
-        fetch_stall : OUT STD_LOGIC;
-        decode_stall : OUT STD_LOGIC;
-        decode_flush : OUT STD_LOGIC;
-        ex1_flush : OUT STD_LOGIC;
-        pc_enable : OUT STD_LOGIC;
+        FETCH_STALL : OUT STD_LOGIC;
+        DECODE_STALL : OUT STD_LOGIC;
+        DECODE_FLUSH : OUT STD_LOGIC;
+        EX1_FLUSH : OUT STD_LOGIC;
+        PC_ENABLE : OUT STD_LOGIC;
 
-        jump_type : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-        jump_is_unconditional : OUT STD_LOGIC;
-        uses_immediate_word : OUT STD_LOGIC;
-
-        alu_op : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        alu_src_a_sel : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-        alu_src_b_sel : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-
-        wb_enable : OUT STD_LOGIC;
-        wb_data_sel : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-        out_port_enable : OUT STD_LOGIC;
-
-        mem_read_enable : OUT STD_LOGIC;
-        mem_write_enable : OUT STD_LOGIC;
-        mem_addr_sel : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-        mem_write_data_sel : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
-
-        sp_write_enable : OUT STD_LOGIC;
-        is_push : OUT STD_LOGIC;
-
-        ccr_enable : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        ccr_reset : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+        LOAD_FLAGS : OUT STD_LOGIC;
+        PC_WRITE_EN : OUT STD_LOGIC;
+        MEM_WRITE_SEL : OUT mem_write_sel_t;
+        COND_BRANCH : OUT STD_LOGIC;
+        HLT : OUT STD_LOGIC;
+        MEMW : OUT STD_LOGIC;
+        MEMR : OUT STD_LOGIC;
+        REG_WB_EN : OUT STD_LOGIC;
+        UPDATE_FLAGS : OUT STD_LOGIC;
+        ALU_OP : OUT alu_op_t;
+        ALU_INPUT_SEL : OUT alu_input_sel_t;
+        JMP_FLAG_SEL : OUT jmp_flag_sel_t;
+        OUTPUT_PORT_EN : OUT STD_LOGIC;
+        MEM_ADDRESS_SEL : OUT mem_address_sel_t;
+        SWAP_2ND_CYCLE : OUT STD_LOGIC;
+        MULTICYCLE_STALL : OUT STD_LOGIC;
+        MULTICYCLE_SEL : OUT multicycle_sel_t
     );
 END ENTITY control_unit;
 
 ARCHITECTURE rtl OF control_unit IS
 BEGIN
-    -- TODO: opcode mapping for full ISA
-    -- TODO: control bundles for 6-stage pipeline
-    -- TODO: multi-cycle sequencing for INT, RTI, CALL, RET, SWAP
+    -- Definition-only skeleton.
+    -- TODO: map opcode/internal opcode values from isa_defs_pkg to control outputs.
+    -- TODO: implement multicycle sequencing for SWAP -> SWAP2 and INT -> INT2 -> INT3.
+    -- TODO: generate CALL/JMP early-branch behavior based on instr(BR_HINT_UNCOND_BIT).
 END ARCHITECTURE rtl;
