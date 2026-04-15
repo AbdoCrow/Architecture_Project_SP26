@@ -1,5 +1,8 @@
-LIBRARY IEEE;
-USE IEEE.STD_LOGIC_1164.ALL;
+library ieee;
+use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
+use ieee.math_real.all;
+
 
 ENTITY memory IS
     GENERIC (
@@ -9,17 +12,29 @@ ENTITY memory IS
     );
     PORT (
         clk : IN STD_LOGIC;
-        address : IN STD_LOGIC_VECTOR(ADDR_WIDTH - 1 DOWNTO 0);
-        write_data : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
-        read_data : OUT STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
-        read_en : IN STD_LOGIC;
-        write_en : IN STD_LOGIC
+        mem_addr : IN STD_LOGIC_VECTOR(ADDR_WIDTH - 1 DOWNTO 0);
+        mem_data_in : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
+        mem_data_out : OUT STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
+        MEMORY_READ_EN : IN STD_LOGIC;
+        MEMORY_WRITE_EN : IN STD_LOGIC
     );
 END ENTITY memory;
 
 ARCHITECTURE rtl OF memory IS
+type memory_array_type is array (0 to MEMORY_SIZE - 1) of STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
+signal memory_array : memory_array_type := (others => (others => '0'));
 BEGIN
     -- TODO: implement unified memory model (program + data)
     -- TODO: initialize PC reset vector from memory location 0
     -- TODO: support interrupt vector at memory location 1
+    process(clk)
+    begin
+        if rising_edge(clk) then
+            if MEMORY_WRITE_EN = '1' then
+                -- Write data to memory
+                memory_array(to_integer(unsigned(mem_addr))) <= mem_data_in;
+            end if;
+        end if;
+    end process;
+    mem_data_out <= memory_array(to_integer(unsigned(mem_addr))) when MEMORY_READ_EN = '1' else (others => 'Z');
 END ARCHITECTURE rtl;
