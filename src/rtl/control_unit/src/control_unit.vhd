@@ -52,7 +52,7 @@ BEGIN
             MEMW <= '0';
             OUTPUT_PORT_EN <= '0';
 
-            when OPCODE_NOP =>
+            when OPCODE_HLT =>
             REG_WB_EN <= '0';
             update_flags <= '0';
             MEMR <= '0';
@@ -60,7 +60,7 @@ BEGIN
             OUTPUT_PORT_EN <= '0';
             HLT <= '1';
 
-            when SETC =>
+            when OPCODE_SETC =>
             ALU_OP <= ALU_OP_SETC;
             REG_WB_EN <= '0';
             update_flags <= '1';
@@ -84,7 +84,7 @@ BEGIN
             OUTPUT_PORT_EN <= '0';
 
             when OPCODE_IN =>
-            ALU_OP <= PASS_B;
+            ALU_OP <= ALU_OP_PASS_B;
             REG_WB_EN <= '1';
             update_flags <= '0';
             MEMR <= '0';
@@ -93,7 +93,7 @@ BEGIN
             ALU_INPUT_SEL <= ALU_INPUT_IN_PORT;
 
             when OPCODE_OUT =>
-            ALU_OP <= PASS_A;
+            ALU_OP <= ALU_OP_PASS_A;
             REG_WB_EN <= '0';
             update_flags <= '0';
             MEMR <= '0';
@@ -101,21 +101,21 @@ BEGIN
             OUTPUT_PORT_EN <= '1';
 
             when OPCODE_MOV =>
-            ALU_OP <= PASS_A;
+            ALU_OP <= ALU_OP_PASS_A;
             REG_WB_EN <= '1';
             update_flags <= '0';
             MEMR <= '0';
             MEMW <= '0';
             OUTPUT_PORT_EN <= '0';
             when OPCODE_SWAP =>
-            ALU_OP <= PASS_A;
+            ALU_OP <= ALU_OP_PASS_A;
             REG_WB_EN <= '1';
             update_flags <= '0';
             MEMR <= '0';
             MEMW <= '0';
             OUTPUT_PORT_EN <= '0';
             multicycle_stall <= '1';
-            MULTICYCLE_SEL <= MULTICYCLE_SWAP;
+            MULTICYCLE_SEL <= MULTICYCLE_SWAP2;
 
             SWAP_2ND_CYCLE <= '1';
             when OPCODE_ADD =>
@@ -275,7 +275,7 @@ BEGIN
             COND_BRANCH <= '0';
             PC_WRITE_EN <= '1';
             MULTICYCLE_STALL <= '1';
-            MULTICYCLE_SEL <= MULTICYCLE_INT;
+            MULTICYCLE_SEL <= MULTICYCLE_INT2;
 
             WHEN OPCODE_SWAP2 =>
             REG_WB_EN <= '1';
@@ -287,6 +287,7 @@ BEGIN
             PC_WRITE_EN <= '1';
             SWAP_2ND_CYCLE <= '1';
             MULTICYCLE_STALL <= '0';
+            MULTICYCLE_SEL <= MULTICYCLE_NONE;
 
             when OPCODE_INT2 =>
             REG_WB_EN <= '0';
@@ -298,7 +299,7 @@ BEGIN
             PC_WRITE_EN <= '0';
             SWAP_2ND_CYCLE <= '0';
             MULTICYCLE_STALL <= '1';
-            MULTICYCLE_SEL <= MULTICYCLE_INT2;
+            MULTICYCLE_SEL <= MULTICYCLE_INT3;
 
             when OPCODE_INT3 =>
             REG_WB_EN <= '0';
@@ -310,7 +311,7 @@ BEGIN
             PC_WRITE_EN <= '1';
             SWAP_2ND_CYCLE <= '0';
             MULTICYCLE_STALL <= '0';
-            MULTICYCLE_SEL <= MULTICYCLE_INT3;
+            MULTICYCLE_SEL <= MULTICYCLE_NONE;
 
             when others => 
             end case;
