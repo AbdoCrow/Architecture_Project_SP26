@@ -42,278 +42,82 @@ BEGIN
 -- TODO: map opcode/internal opcode values from isa_defs_pkg to control outputs.
 -- TODO: implement multicycle sequencing for SWAP -> SWAP2 and INT -> INT2 -> INT3.
 -- TODO: generate CALL/JMP early-branch behavior based on instr(BR_HINT_UNCOND_BIT)
-    process (opcode)
-    begin
-        case opcode is
-            when OPCODE_NOP =>
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
+    with opcode select REG_WB_EN <=
+        '1' when OPCODE_NOT | OPCODE_INC | OPCODE_IN | OPCODE_MOV | OPCODE_SWAP |
+                 OPCODE_ADD | OPCODE_SUB | OPCODE_AND | OPCODE_IADD | OPCODE_POP |
+                 OPCODE_LDM | OPCODE_LDD | OPCODE_SWAP2,
+        '0' when others;
 
-            when OPCODE_HLT =>
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            HLT <= '1';
+    with opcode select UPDATE_FLAGS <=
+        '1' when OPCODE_SETC | OPCODE_NOT | OPCODE_INC | OPCODE_ADD |
+                 OPCODE_SUB | OPCODE_AND | OPCODE_IADD | OPCODE_RTI,
+        '0' when others;
 
-            when OPCODE_SETC =>
-            ALU_OP <= ALU_OP_SETC;
-            REG_WB_EN <= '0';
-            update_flags <= '1';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
+    with opcode select MEMR <=
+        '1' when OPCODE_POP | OPCODE_LDD | OPCODE_RET | OPCODE_RTI,
+        '0' when others;
 
-            when OPCODE_NOT =>
-            ALU_OP <= ALU_OP_NOT_A;
-            REG_WB_EN <= '1';
-            update_flags <= '1';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            when OPCODE_INC =>
-            ALU_OP <= ALU_OP_INC_A;
-            REG_WB_EN <= '1';
-            update_flags <= '1';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
+    with opcode select MEMW <=
+        '1' when OPCODE_PUSH | OPCODE_STD | OPCODE_CALL | OPCODE_INT | OPCODE_INT2,
+        '0' when others;
 
-            when OPCODE_IN =>
-            ALU_OP <= ALU_OP_PASS_B;
-            REG_WB_EN <= '1';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            ALU_INPUT_SEL <= ALU_INPUT_IN_PORT;
+    with opcode select OUTPUT_PORT_EN <=
+        '1' when OPCODE_OUT,
+        '0' when others;
 
-            when OPCODE_OUT =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '1';
+    with opcode select HLT <=
+        '1' when OPCODE_HLT,
+        '0' when others;
 
-            when OPCODE_MOV =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '1';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            when OPCODE_SWAP =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '1';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            multicycle_stall <= '1';
-            MULTICYCLE_SEL <= MULTICYCLE_SWAP2;
+    with opcode select ALU_OP <=
+        ALU_OP_SETC when OPCODE_SETC,
+        ALU_OP_NOT_A when OPCODE_NOT,
+        ALU_OP_INC_A when OPCODE_INC,
+        ALU_OP_PASS_B when OPCODE_IN | OPCODE_LDM,
+        ALU_OP_PASS_A when OPCODE_OUT | OPCODE_MOV | OPCODE_SWAP | OPCODE_PUSH |
+                           OPCODE_POP | OPCODE_STD | OPCODE_JZ | OPCODE_JN |
+                           OPCODE_JC | OPCODE_JMP | OPCODE_CALL | OPCODE_RET |
+                           OPCODE_RTI | OPCODE_INT,
+        ALU_OP_ADD when OPCODE_ADD | OPCODE_IADD | OPCODE_LDD,
+        ALU_OP_SUB when OPCODE_SUB,
+        ALU_OP_AND when OPCODE_AND,
+        ALU_OP_NOP when others;
 
-            SWAP_2ND_CYCLE <= '1';
-            when OPCODE_ADD =>
-            ALU_OP <= ALU_OP_ADD;
-            REG_WB_EN <= '1';
-            update_flags <= '1';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            ALU_INPUT_SEL <= ALU_INPUT_RSRC2;
+    with opcode select ALU_INPUT_SEL <=
+        ALU_INPUT_IN_PORT when OPCODE_IN,
+        ALU_INPUT_IMMEDIATE when OPCODE_IADD,
+        ALU_INPUT_RSRC2 when others;
 
-            when OPCODE_SUB =>
-            ALU_OP <= ALU_OP_SUB;
-            REG_WB_EN <= '1';
-            update_flags <= '1';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            ALU_INPUT_SEL <= ALU_INPUT_RSRC2;
+    with opcode select MEM_ADDRESS_SEL <=
+        MEM_ADDRESS_SP_PUSH when OPCODE_PUSH | OPCODE_CALL | OPCODE_INT | OPCODE_INT2,
+        MEM_ADDRESS_SP_POP when OPCODE_POP | OPCODE_RET | OPCODE_RTI,
+        MEM_ADDRESS_INT_VECTOR when OPCODE_INT3,
+        MEM_ADDRESS_CALC when others;
 
-            when OPCODE_AND =>
-            ALU_OP <= ALU_OP_AND;
-            REG_WB_EN <= '1';
-            update_flags <= '1';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            ALU_INPUT_SEL <= ALU_INPUT_RSRC2;
+    with opcode select MEM_WRITE_SEL <=
+        MEM_WRITE_PC_DATA when OPCODE_CALL | OPCODE_RET | OPCODE_INT,
+        MEM_WRITE_FLAGS_DATA when OPCODE_INT2,
+        MEM_WRITE_ALU_DATA when others;
 
-            when OPCODE_IADD =>
-            ALU_OP <= ALU_OP_ADD;
-            REG_WB_EN <= '1';
-            update_flags <= '1';
-            MEMR <= '0';
-            MEMW <= '0';
-            OUTPUT_PORT_EN <= '0';
-            ALU_INPUT_SEL <= ALU_INPUT_IMMEDIATE;
+    with opcode select COND_BRANCH <=
+        '1' when OPCODE_JZ | OPCODE_JN | OPCODE_JC,
+        '0' when others;
 
-            when OPCODE_PUSH =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '1';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_SP_PUSH;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '0';
+    with opcode select PC_WRITE_EN <=
+        '1' when OPCODE_RET | OPCODE_RTI | OPCODE_INT | OPCODE_SWAP2 | OPCODE_INT3,
+        '0' when others;
 
-            when OPCODE_POP =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '1';
-            update_flags <= '0';
-            MEMR <= '1';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_SP_POP;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '0';
+    with opcode select SWAP_2ND_CYCLE <=
+        '1' when OPCODE_SWAP | OPCODE_SWAP2,
+        '0' when others;
 
-            when OPCODE_LDM =>
-            ALU_OP <= ALU_OP_PASS_B;
-            REG_WB_EN <= '1';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_CALC;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '0';
-            
-            when OPCODE_LDD =>
-            ALU_OP <= ALU_OP_ADD;
-            REG_WB_EN <= '1';
-            update_flags <= '0';
-            MEMR <= '1';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_CALC;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '0';
+    with opcode select MULTICYCLE_STALL <=
+        '1' when OPCODE_SWAP | OPCODE_INT | OPCODE_INT2,
+        '0' when others;
 
-            WHEN OPCODE_STD =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '1';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_CALC;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '0';
-
-            WHEN OPCODE_JZ | OPCODE_JN | OPCODE_JC =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_CALC;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            COND_BRANCH <= '1';
-            PC_WRITE_EN <= '0';
-
-            WHEN OPCODE_JMP =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_CALC;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '0';
-
-            WHEN OPCODE_CALL =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '1';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_SP_PUSH;
-            MEM_WRITE_SEL <= MEM_WRITE_PC_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '0';
-
-            WHEN OPCODE_RET =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';   
-            update_flags <= '0';
-            MEMR <= '1';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_SP_POP;
-            MEM_WRITE_SEL <= MEM_WRITE_PC_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '1';
-
-            WHEN OPCODE_RTI =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';
-            update_flags <= '1';
-            MEMR <= '1';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_SP_POP;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '1';
-
-            WHEN OPCODE_INT =>
-            ALU_OP <= ALU_OP_PASS_A;
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '1';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_SP_PUSH;
-            MEM_WRITE_SEL <= MEM_WRITE_PC_DATA;
-            COND_BRANCH <= '0';
-            PC_WRITE_EN <= '1';
-            MULTICYCLE_STALL <= '1';
-            MULTICYCLE_SEL <= MULTICYCLE_INT2;
-
-            WHEN OPCODE_SWAP2 =>
-            REG_WB_EN <= '1';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_CALC;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            PC_WRITE_EN <= '1';
-            SWAP_2ND_CYCLE <= '1';
-            MULTICYCLE_STALL <= '0';
-            MULTICYCLE_SEL <= MULTICYCLE_NONE;
-
-            when OPCODE_INT2 =>
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '1';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_SP_PUSH;
-            MEM_WRITE_SEL <= MEM_WRITE_FLAGS_DATA;
-            PC_WRITE_EN <= '0';
-            SWAP_2ND_CYCLE <= '0';
-            MULTICYCLE_STALL <= '1';
-            MULTICYCLE_SEL <= MULTICYCLE_INT3;
-
-            when OPCODE_INT3 =>
-            REG_WB_EN <= '0';
-            update_flags <= '0';
-            MEMR <= '0';
-            MEMW <= '0';
-            MEM_ADDRESS_SEL <= MEM_ADDRESS_INT_VECTOR;
-            MEM_WRITE_SEL <= MEM_WRITE_ALU_DATA;
-            PC_WRITE_EN <= '1';
-            SWAP_2ND_CYCLE <= '0';
-            MULTICYCLE_STALL <= '0';
-            MULTICYCLE_SEL <= MULTICYCLE_NONE;
-
-            when others => 
-            end case;
-    end process;
+    with opcode select MULTICYCLE_SEL <=
+        MULTICYCLE_SWAP2 when OPCODE_SWAP,
+        MULTICYCLE_INT2 when OPCODE_INT,
+        MULTICYCLE_INT3 when OPCODE_INT2,
+        MULTICYCLE_NONE when others;
 END ARCHITECTURE rtl;
