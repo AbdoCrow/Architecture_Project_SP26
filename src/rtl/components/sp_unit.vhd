@@ -13,6 +13,7 @@ ENTITY sp_unit IS
         reset : IN STD_LOGIC;
         sp_write_en : IN STD_LOGIC;
         SP_OP : IN STD_LOGIC; --SP_OP in the schematic
+        HLT : IN STD_LOGIC;
         sp_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
 END ENTITY sp_unit;
@@ -36,9 +37,9 @@ BEGIN
 --             end if;
 --         end if;
 --     end process;
-sp_reg <= std_logic_vector(unsigned(sp_reg) - 4) when (sp_write_en = '1' and SP_OP = '0') else
-          std_logic_vector(unsigned(sp_reg) + 4) when (sp_write_en = '1' and SP_OP = '1') else
-          STACK_START_ADDR when (reset = '1' AND sp_write_en = '1') else
+sp_reg <= std_logic_vector(unsigned(sp_reg) - 4) when (sp_write_en = '1' and SP_OP = '0' and HLT = '0') else
+          std_logic_vector(unsigned(sp_reg) + 4) when (sp_write_en = '1' and SP_OP = '1' and HLT = '0') else
+          STACK_START_ADDR when (reset = '1' AND sp_write_en = '1' and HLT = '0') else
           sp_reg;
 
 

@@ -1,6 +1,8 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
 USE work.isa_defs_pkg.ALL;
+use ieee.numeric_std.all;
+use ieee.math_real.all;
 
 ENTITY memory_stage IS
     PORT (
@@ -35,7 +37,13 @@ ENTITY memory_stage IS
         pc_write_en_out : OUT STD_LOGIC;
         pc_write_data_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
 
-        PC_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0)
+        -- ADDED FROM OMAR
+        PC_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        FETCH_MEM_SEL : IN STD_LOGIC;
+        HLT : IN STD_LOGIC;
+        loaded_pc : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        fetched_instr : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+
     );
 END ENTITY memory_stage;
 
@@ -50,6 +58,8 @@ SIGNAL interrupt_addr_sign_extend : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL CCR_FLAGS_SIGN_EXTEND : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL SP_PUSH : STD_LOGIC_VECTOR(31 DOWNTO 0);
 SIGNAL SP_POP : STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL sp_out : STD_LOGIC_VECTOR(31 DOWNTO 0);
+SIGNAL WB_DATA : STD_LOGIC_VECTOR(31 DOWNTO 0);
 BEGIN
 -- Definition-only skeleton.
     UPDATE_FLAGS_OUT <= UPDATE_FLAGS_IN;
@@ -90,9 +100,30 @@ BEGIN
             input_3 => (others => '0'),
             output => mem_data_in
         );
+    sp_unit_inst: entity work.sp_unit
+     generic map(
+        STACK_START_ADDR => X"00000FFF"
+    )
+     port map(
+        clk => clk,
+        reset => reset,
+        sp_write_en => MEM_ADDRESS_SEL_IN(1),
+        SP_OP => MEM_ADDRESS_SEL_IN(0),
+        HLT => HLT,
+        sp_out => sp_out
+    );
     MEMORY_READ_EN <= MEMR_IN WHEN FETCH_MEM_SEL = '1' ELSE '1';
     MEMORY_WRITE_EN <= MEMW_IN WHEN FETCH_MEM_SEL = '1' ELSE '0';
-    mem_addr <= PC_in(11 DOWNTO 0) WHEN FETCH_MEM_SEL = "0" ELSE
-                mem_adr_in(11 DOWNTO 0) WHEN FETCH_MEM_SEL = "1";
+    mem_addr <= PC_in(11 DOWNTO 0) WHEN FETCH_MEM_SEL = '0' ELSE
+                mem_adr_in(11 DOWNTO 0) WHEN FETCH_MEM_SEL = '1';
+    SP_POP <= sp_out;
+    SP_PUSH <= STD_LOGIC_VECTOR(unsigned(sp_out) + 4);     
+
+    WB_DATA <= alu_result_in WHEN MEMR_IN = '0' ELSE mem_data_out;
+    flag_wb_out <= alu_flags_in WHEN LOAD_FLAGS_IN = '0' ELSE WB_DATA(2 DOWNTO 0);
+    wb_data_out <= WB_DATA;
+
+    loaded_pc <= mem_data_out;
+    fetched_instr <= mem_data_out;
     --TODO :: SP UNIT missing to be implemented with fixes and revising for the code
 END ARCHITECTURE rtl;
