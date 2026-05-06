@@ -7,7 +7,7 @@ ENTITY control_unit IS
         clk : IN STD_LOGIC;
         reset : IN STD_LOGIC;
         intr_in : IN STD_LOGIC;
-        instr : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        --instr : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         opcode : IN opcode_t;
 
         FETCH_STALL : OUT STD_LOGIC;
