@@ -24,9 +24,6 @@ ARCHITECTURE rtl OF memory IS
 type memory_array_type is array (0 to MEMORY_SIZE - 1) of STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
 signal memory_array : memory_array_type := (others => (others => '0'));
 BEGIN
-    -- TODO: implement unified memory model (program + data)
-    -- TODO: initialize PC reset vector from memory location 0
-    -- TODO: support interrupt vector at memory location 1
     process(clk)
     begin
         if rising_edge(clk) then
@@ -34,7 +31,12 @@ BEGIN
                 -- Write data to memory
                 memory_array(to_integer(unsigned(mem_addr))) <= mem_data_in;
             end if;
+            if MEMORY_READ_EN = '1' then
+                -- Read data from memory 
+                mem_data_out <= memory_array(to_integer(unsigned(mem_addr)));
+            else
+                mem_data_out <= (others => '0');
+            end if;
         end if;
     end process;
-    mem_data_out <= memory_array(to_integer(unsigned(mem_addr))) when MEMORY_READ_EN = '1' else (others => 'Z');
 END ARCHITECTURE rtl;
