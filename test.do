@@ -1,1 +1,1 @@
-do scripts/do_files/component_testbenches/branch_prediction_unit_testbench.do
+do scripts/do_files/component_testbenches/interrupt_handler_testbench.do

@@ -21,6 +21,7 @@ ARCHITECTURE tb OF memory_tb IS
     SIGNAL mem_addr    : STD_LOGIC_VECTOR(11 DOWNTO 0) := (OTHERS => '0');
     SIGNAL mem_data_in : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
     SIGNAL mem_data_out : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
+    SIGNAL RESET       : STD_LOGIC := '0';
 BEGIN
 
     --------------------------------------------------------------------
@@ -29,6 +30,7 @@ BEGIN
     DUT : ENTITY work.memory
         PORT MAP (
             clk => clk,
+            RESET => RESET,
             mem_addr => mem_addr,
             mem_data_in => mem_data_in,
             mem_data_out => mem_data_out,
@@ -70,6 +72,7 @@ BEGIN
         mem_data_in <= X"DEADBEEF";
         MEMORY_WRITE_EN <= '1';
         MEMORY_READ_EN <= '0';
+        RESET <= '0';
         WAIT FOR CLK_PERIOD;
         -- Read from memory
         MEMORY_WRITE_EN <= '0';
