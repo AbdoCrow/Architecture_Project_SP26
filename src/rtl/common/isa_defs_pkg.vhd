@@ -79,7 +79,9 @@ PACKAGE isa_defs_pkg IS
     CONSTANT JMP_FLAG_N : jmp_flag_sel_t := "01";
     CONSTANT JMP_FLAG_C : jmp_flag_sel_t := "10";
     CONSTANT JMP_FLAG_NONE : jmp_flag_sel_t := "11";
-
+    CONSTANT CARRY_FLAG_BIT : INTEGER := 2;
+    CONSTANT ZERO_FLAG_BIT : INTEGER := 0;
+    CONSTANT NEGATIVE_FLAG_BIT : INTEGER := 1;
     -- Memory source/address selectors.
     CONSTANT MEM_WRITE_ALU_DATA : mem_write_sel_t := "00";
     CONSTANT MEM_WRITE_PC_DATA : mem_write_sel_t := "01";
