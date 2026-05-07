@@ -1,1 +1,1 @@
-do scripts/do_files/component_testbenches/sp_testbench.do
+do scripts/do_files/component_testbenches/register_file_testbench.do
