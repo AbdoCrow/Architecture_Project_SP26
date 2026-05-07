@@ -10,8 +10,8 @@ PACKAGE isa_defs_pkg IS
     SUBTYPE jmp_flag_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
     SUBTYPE mem_address_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
     SUBTYPE mem_write_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
-    SUBTYPE multicycle_sel_t IS STD_LOGIC_VECTOR(2 DOWNTO 0);
-    SUBTYPE fwd_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
+    SUBTYPE multicycle_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
+    SUBTYPE fwd_sel_t IS STD_LOGIC_VECTOR(2 DOWNTO 0);
     SUBTYPE flag_src_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
     SUBTYPE int_idx_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
 
@@ -44,7 +44,6 @@ PACKAGE isa_defs_pkg IS
     CONSTANT OPCODE_RTI  : opcode_t := "11111";
 
     -- Internal-only opcodes (decode injected; not assembler-supported).
-    CONSTANT OPCODE_SWAP2 : opcode_t := "00111";
     CONSTANT OPCODE_INT2  : opcode_t := "01110";
     CONSTANT OPCODE_INT3  : opcode_t := "01111";
 
@@ -67,6 +66,7 @@ PACKAGE isa_defs_pkg IS
     CONSTANT ALU_OP_ADD : alu_op_t := "0110";
     CONSTANT ALU_OP_SUB : alu_op_t := "0111";
     CONSTANT ALU_OP_AND : alu_op_t := "1000";
+    CONSTANT ALU_OP_SWAP : alu_op_t := "1001";
     -- SWAP/INT micro-operations reuse generic PASS_A/PASS_B with control-path sequencing.
 
     -- ALU input select.
@@ -92,22 +92,25 @@ PACKAGE isa_defs_pkg IS
     CONSTANT MEM_ADDRESS_SP_POP : mem_address_sel_t := "11";
 
     -- Decode-injected multicycle selection.
-    CONSTANT MULTICYCLE_NONE : multicycle_sel_t := "000";
-    CONSTANT MULTICYCLE_SWAP2 : multicycle_sel_t := "001";
-    CONSTANT MULTICYCLE_RET_STEP : multicycle_sel_t := "010";
-    CONSTANT MULTICYCLE_INT2 : multicycle_sel_t := "011";
-    CONSTANT MULTICYCLE_INT3 : multicycle_sel_t := "100";
+    CONSTANT MULTICYCLE_NONE : multicycle_sel_t := "00";
+    CONSTANT MULTICYCLE_RET_STEP : multicycle_sel_t := "01";
+    CONSTANT MULTICYCLE_INT2 : multicycle_sel_t := "10";
+    CONSTANT MULTICYCLE_INT3 : multicycle_sel_t := "11";
 
     -- Forwarding select encoding.
-    CONSTANT FWD_FROM_REGFILE : fwd_sel_t := "00";
-    CONSTANT FWD_FROM_EX2 : fwd_sel_t := "01";
-    CONSTANT FWD_FROM_MEM : fwd_sel_t := "10";
-    CONSTANT FWD_FROM_WB : fwd_sel_t := "11";
+    CONSTANT FWD_FROM_REGFILE : fwd_sel_t := "000";
+    CONSTANT FWD_FROM_EX1 : fwd_sel_t := "010";
+    CONSTANT FWD_FROM_EX1_PORT2 : fwd_sel_t := "011";
+    CONSTANT FWD_FROM_EX2 : fwd_sel_t := "100";
+    CONSTANT FWD_FROM_EX2_PORT2 : fwd_sel_t := "101";
+    CONSTANT FWD_FROM_MEM : fwd_sel_t := "110";
+    CONSTANT FWD_FROM_MEM_PORT2 : fwd_sel_t := "111";
 
     CONSTANT FLAG_FROM_EX1 : flag_src_sel_t := "00";
     CONSTANT FLAG_FROM_EX2 : flag_src_sel_t := "01";
     CONSTANT FLAG_FROM_MEM : flag_src_sel_t := "10";
-    CONSTANT FLAG_FROM_REG : flag_src_sel_t := "11";
+    CONSTANT FLAG_FROM_REGFILE : flag_src_sel_t := "11";
+
 END PACKAGE isa_defs_pkg;
 
 PACKAGE BODY isa_defs_pkg IS
