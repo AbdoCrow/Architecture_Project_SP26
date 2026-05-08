@@ -59,6 +59,7 @@ BEGIN
         ALUOp <= ALU_OP_ADD; -- ADD operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000008", x"00000000", "000"); -- Expect 8, no flags set
+        REPORT "Test 1 passed: ADD operation" SEVERITY NOTE;
 
         -- Test 2: SUB operation with negative result
         A <= x"00000003"; -- 3
@@ -67,6 +68,7 @@ BEGIN
         ALUOp <= ALU_OP_SUB; -- SUB operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"FFFFFFFD", x"00000000", "001"); -- Expect -2, zero flag set
+        REPORT "Test 2 passed: SUB operation with negative result" SEVERITY NOTE;
 
         -- Test 3: AND operation
         A <= x"0000000F"; -- 15
@@ -75,7 +77,8 @@ BEGIN
         ALUOp <= ALU_OP_AND; -- AND operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000003", x"00000000", "001"); -- Expect 3, zero flag set
-        
+        REPORT "Test 3 passed: AND operation" SEVERITY NOTE;
+
          -- Test 4: INC operation with overflow
         A <= x"FFFFFFFF"; -- -1
         B <= x"00000000"; -- 0 (ignored for INC)
@@ -83,6 +86,7 @@ BEGIN
         ALUOp <= ALU_OP_INC_A; -- INC operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000000", x"00000000", "011"); -- Expect 0, zero and carry flags set
+        REPORT "Test 4 passed: INC operation with overflow" SEVERITY NOTE;
 
          -- Test 5: NOT operation
         A <= x"0000000F"; -- 15
@@ -91,6 +95,33 @@ BEGIN
         ALUOp <= ALU_OP_NOT_A; -- NOT operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"FFFFFFF0", x"00000000", "111"); -- Expect -16, all flags set
+        REPORT "Test 5 passed: NOT operation" SEVERITY NOTE;
+        -- Test 6: PASS Operation
+        A <= x"12345678"; -- Arbitrary value
+        B <= x"55678910"; -- Arbitrary value
+        prev_flags <= "000"; -- No flags set
+        ALUOp <= ALU_OP_PASS; -- PASS operation
+        WAIT FOR CLK_PERIOD; 
+        check_alu_results(x"12345678", x"55678910", "000"); -- Expect A and B to be passed through, no flags set
+        REPORT "Test 6 passed: PASS operation" SEVERITY NOTE;
+
+        -- Test 7: NOP Operation
+        A <= x"12345678"; -- Arbitrary value
+        B <= x"55678910"; -- Arbitrary value
+        prev_flags <= "000"; -- No flags set
+        ALUOp <= ALU_OP_NOP; -- NOP operation
+        WAIT FOR CLK_PERIOD;
+        check_alu_results(x"00000000", x"00000000", "000"); -- Expect no change, no flags set
+        REPORT "Test 7 passed: NOP operation" SEVERITY NOTE;
+
+        -- Test 8: SETC Operation
+        A <= x"00000000"; -- 0 (ignored for SETC)
+        B <= x"00000000"; -- 0 (ignored for SETC)
+        prev_flags <= "001"; --  Zero flag set
+        ALUOp <= ALU_OP_SETC; -- SETC operation
+        WAIT FOR CLK_PERIOD;
+        check_alu_results(x"00000000", x"00000000", "101"); -- Expect no change, carry flag set
+        REPORT "Test 8 passed: SETC operation" SEVERITY NOTE;
 
         -- TODO: Add more tests for other ALU operations and edge cases
         WAIT; -- Wait indefinitely after tests
