@@ -13,7 +13,6 @@ USE work.isa_defs_pkg.ALL;
 --   5. Control signals pass-through when FLUSH=0, STALL=0
 --   6. NOP injection: all control signals forced to 0 when FLUSH='1'
 --   7. NOP injection: all control signals forced to 0 when STALL='1'
---   8. Branch prediction and next_pc passthrough
 --   9. MULTICYCLE_SEL / MULTICYCLE_STALL passthrough (from control unit)
 --  10. Register file reset (all regs => 0 after reset)
 -- =============================================================================
@@ -33,8 +32,6 @@ ARCHITECTURE tb OF decode_stage_tb IS
 
     -- From fetch
     SIGNAL instr_in              : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
-    SIGNAL next_pc_in            : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
-    SIGNAL branch_prediction_in  : STD_LOGIC := '0';
 
     -- From writeback
     SIGNAL wb_addr_1_in          : reg_idx_t := (OTHERS => '0');
@@ -71,10 +68,8 @@ ARCHITECTURE tb OF decode_stage_tb IS
     SIGNAL imm_offset_out        : STD_LOGIC_VECTOR(15 DOWNTO 0);
     SIGNAL reg_write_address_1_out : reg_idx_t;
     SIGNAL reg_write_address_2_out : reg_idx_t;
-    SIGNAL next_pc_out           : STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL read_reg_1_out        : reg_idx_t;
     SIGNAL read_reg_2_out        : reg_idx_t;
-    SIGNAL branch_prediction_out : STD_LOGIC;
 
     -- Multicycle / interrupt
     SIGNAL MULTICYCLE_SEL        : multicycle_sel_t;
@@ -153,8 +148,6 @@ BEGIN
             clk                    => clk,
             reset                  => reset,
             instr_in               => instr_in,
-            next_pc_in             => next_pc_in,
-            branch_prediction_in   => branch_prediction_in,
             wb_addr_1_in           => wb_addr_1_in,
             wb_data_1_in           => wb_data_1_in,
             REG_WB_EN_1_IN         => REG_WB_EN_1_IN,
@@ -183,10 +176,8 @@ BEGIN
             imm_offset_out         => imm_offset_out,
             reg_write_address_1_out => reg_write_address_1_out,
             reg_write_address_2_out => reg_write_address_2_out,
-            next_pc_out            => next_pc_out,
             read_reg_1_out         => read_reg_1_out,
             read_reg_2_out         => read_reg_2_out,
-            branch_prediction_out  => branch_prediction_out,
             MULTICYCLE_SEL         => MULTICYCLE_SEL,
             MULTICYCLE_STALL       => MULTICYCLE_STALL,
             INT_TARGERT_ADDR       => INT_TARGERT_ADDR,
@@ -252,18 +243,6 @@ BEGIN
             ASSERT ALU_OP          = ZEROS_ALU_OP    REPORT test_name & ": ALU_OP should be 0"          SEVERITY ERROR;
         END PROCEDURE;
 
-        PROCEDURE check_passthrough(test_name : STRING;
-                                    exp_next_pc : STD_LOGIC_VECTOR(31 DOWNTO 0);
-                                    exp_bp      : STD_LOGIC) IS
-        BEGIN
-            ASSERT next_pc_out = exp_next_pc
-                REPORT test_name & ": next_pc_out mismatch"
-                SEVERITY ERROR;
-            ASSERT branch_prediction_out = exp_bp
-                REPORT test_name & ": branch_prediction_out mismatch"
-                SEVERITY ERROR;
-        END PROCEDURE;
-
     BEGIN
 
         -- ==================================================================
@@ -290,11 +269,8 @@ BEGIN
         --   bits[31:27]=OPCODE_ADD  [26:24]=3  [23:21]=1  [20:18]=2  [15:0]=0xABCD
         -- ==================================================================
         instr_in <= make_instr(OPCODE_ADD, 3, 1, 2, X"ABCD");
-        next_pc_in <= X"00000010";
-        branch_prediction_in <= '0';
         WAIT FOR CLK_PERIOD;
         check_field_decode("ADD field decode", 3, 1, 2, X"ABCD");
-        check_passthrough("ADD passthrough", X"00000010", '0');
         REPORT "TEST 1 (Instruction field decode) passed" SEVERITY NOTE;
 
         -- ==================================================================
@@ -544,13 +520,7 @@ BEGIN
         -- ==================================================================
         -- TEST 22: next_pc and branch_prediction passthrough values
         -- ==================================================================
-        instr_in              <= make_instr(OPCODE_NOP, 0, 0, 0);
-        next_pc_in            <= X"FEEDFACE";
-        branch_prediction_in  <= '1';
-        WAIT FOR CLK_PERIOD;
-        check_passthrough("next_pc + bp passthrough", X"FEEDFACE", '1');
-        REPORT "TEST 22 (next_pc / branch_prediction passthrough) passed" SEVERITY NOTE;
-
+        REPORT "TEST 22 (next_pc / branch_prediction passthrough) removed" SEVERITY NOTE;
         -- ==================================================================
         -- TEST 23: Transition FLUSH=1 → FLUSH=0 – control signals should
         --          revert to the decoded values on the very next cycle

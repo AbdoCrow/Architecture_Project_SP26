@@ -10,27 +10,42 @@ ENTITY execute1_stage IS
         ALU_OP : IN alu_op_t;
         ALU_INPUT_SEL : IN alu_input_sel_t;
         UPDATE_FLAGS : IN STD_LOGIC;
-        SWAP_2ND_CYCLE : IN STD_LOGIC;
 
-        read_data_1_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        read_data_2_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         imm_offset_in : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
-
-        fwd_ex2_data : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        fwd_mem_data : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        fwd_wb_data : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        RSRC1_SEL : IN fwd_sel_t;
-        RSRC2_SEL : IN fwd_sel_t;
-
-        alu_result_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        alu_result_1_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        alu_result_2_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         base_reg_data_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         alu_flags_out : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        corrected_ccr_flags_out : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
+        corrected_ccr_flags_out : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+
+        -- input port
+        input_port_data_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+        -- forwarding control
+        RSRC1_SEL : IN fwd_sel_t;
+        RSRC2_SEL : IN fwd_sel_t;
+        FLAG_SRC_SEL : IN flag_src_sel_t;
+        -- forwarding data
+        read_data_1_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        read_data_2_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        fwd_ex2_data_1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        fwd_ex2_data_2 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        fwd_mem_data_1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        fwd_mem_data_2 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        fwd_wb_data_1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        fwd_wb_data_2 : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+        fwd_ex2_flags : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        fwd_mem_flags : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+        flag_wb : IN STD_LOGIC_VECTOR(2 DOWNTO 0)
+
+
+
     );
 END ENTITY execute1_stage;
 
 ARCHITECTURE rtl OF execute1_stage IS
 BEGIN
-    -- Definition-only skeleton.
-    -- SWAP and interrupt micro-steps reuse generic ALU_OP values with control-path sequencing.
+    -- Should contain flag_reg and ALU
+    -- control signals that will path through should not be registered here
 END ARCHITECTURE rtl;

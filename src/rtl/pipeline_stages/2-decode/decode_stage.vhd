@@ -11,8 +11,6 @@ ENTITY decode_stage IS
         
         -- Inputs from fetch stage
         instr_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        next_pc_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
-        branch_prediction_in : IN STD_LOGIC;
 
         -- Inputs from writeback stage
         wb_addr_1_in : IN reg_idx_t;
@@ -49,16 +47,14 @@ ENTITY decode_stage IS
         imm_offset_out : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
         reg_write_address_1_out : OUT reg_idx_t;
         reg_write_address_2_out : OUT reg_idx_t;
-        next_pc_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         read_reg_1_out : OUT reg_idx_t;
         read_reg_2_out : OUT reg_idx_t;
-        branch_prediction_out : OUT STD_LOGIC;
 
         -- Outputs to other Stages
         MULTICYCLE_SEL: OUT multicycle_sel_t;
         MULTICYCLE_STALL: OUT STD_LOGIC;
         INT_TARGERT_ADDR: OUT int_idx_t;
-
+        ID_COND_BRANCH : OUT STD_LOGIC;
         -- monitoring register values for debugging
         reg0_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         reg1_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -118,11 +114,10 @@ BEGIN
         reg_write_address_2_out <= RSRC1; -- for SWAP, IN and LDM, RSRC1 is also a write destination
         read_reg_1_out <= RSRC1;
         read_reg_2_out <= RSRC2;
-        next_pc_out <= next_pc_in;
-        branch_prediction_out <= branch_prediction_in;
 
         -- Control unit
     OPCODE_MUX <= OPCODE_NOP WHEN (STALL = '1' OR FLUSH = '1') ELSE instr_in(31 DOWNTO 27);
+    ID_COND_BRANCH <= '0' when (STALL = '1' OR FLUSH = '1') else instr_in(BR_HINT_COND_BIT);
     control_unit_inst : entity work.control_unit
         PORT MAP (
             OPCODE => OPCODE_MUX,
@@ -145,5 +140,4 @@ BEGIN
             MULTICYCLE_SEL => MULTICYCLE_SEL,
             MULTICYCLE_STALL => MULTICYCLE_STALL
         );
-
 END ARCHITECTURE rtl;
