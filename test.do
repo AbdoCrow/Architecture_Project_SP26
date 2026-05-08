@@ -1,1 +1,1 @@
-do scripts/do_files/component_testbenches/forward_unit_testbench.do
+do scripts/do_files/component_testbenches/control_unit_testbench.do

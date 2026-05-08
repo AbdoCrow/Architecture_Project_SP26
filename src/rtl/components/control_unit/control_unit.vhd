@@ -4,18 +4,11 @@ USE work.isa_defs_pkg.ALL;
 
 ENTITY control_unit IS
     PORT (
-        clk : IN STD_LOGIC;
-        reset : IN STD_LOGIC;
-        intr_in : IN STD_LOGIC;
-        --instr : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+        --opcode and hints
         opcode : IN opcode_t;
-
-        FETCH_STALL : OUT STD_LOGIC;
-        DECODE_STALL : OUT STD_LOGIC;
-        DECODE_FLUSH : OUT STD_LOGIC;
-        EX1_FLUSH : OUT STD_LOGIC;
-        PC_ENABLE : OUT STD_LOGIC;
-
+        cond_branch_hint : IN STD_LOGIC;
+        
+        -- Control signals
         LOAD_FLAGS : OUT STD_LOGIC;
         PC_WRITE_EN : OUT STD_LOGIC;
         MEM_WRITE_SEL : OUT mem_write_sel_t;
@@ -23,167 +16,98 @@ ENTITY control_unit IS
         HLT : OUT STD_LOGIC;
         MEMW : OUT STD_LOGIC;
         MEMR : OUT STD_LOGIC;
-        REG_WB_EN : OUT STD_LOGIC;
+        REG_WB_EN_1 : OUT STD_LOGIC;
+        REG_WB_EN_2 : OUT STD_LOGIC;
         UPDATE_FLAGS : OUT STD_LOGIC;
         ALU_OP : OUT alu_op_t;
         ALU_INPUT_SEL : OUT alu_input_sel_t;
         JMP_FLAG_SEL : OUT jmp_flag_sel_t;
         OUTPUT_PORT_EN : OUT STD_LOGIC;
         MEM_ADDRESS_SEL : OUT mem_address_sel_t;
-        SWAP_2ND_CYCLE : OUT STD_LOGIC;
         MULTICYCLE_STALL : OUT STD_LOGIC;
         MULTICYCLE_SEL : OUT multicycle_sel_t
+
     );
 END ENTITY control_unit;
 
 ARCHITECTURE rtl OF control_unit IS
-    signal reg_wb_en_i : STD_LOGIC;
-    signal update_flags_i : STD_LOGIC;
-    signal memr_i : STD_LOGIC;
-    signal memw_i : STD_LOGIC;
-    signal output_port_en_i : STD_LOGIC;
-    signal hlt_i : STD_LOGIC;
-    signal alu_op_i : alu_op_t;
-    signal alu_input_sel_i : alu_input_sel_t;
-    signal mem_address_sel_i : mem_address_sel_t;
-    signal mem_write_sel_i : mem_write_sel_t;
-    signal cond_branch_i : STD_LOGIC;
-    signal pc_write_en_i : STD_LOGIC;
-    signal swap_2nd_cycle_i : STD_LOGIC;
-    signal multicycle_stall_i : STD_LOGIC;
-    signal multicycle_sel_i : multicycle_sel_t;
 BEGIN
+    -- Simple flag Signals
+    LOAD_FLAGS <= '1' WHEN opcode = OPCODE_INT ELSE '0';
+    OUTPUT_PORT_EN <= '1' WHEN opcode = OPCODE_OUT ELSE '0';
+    HLT <= '1' WHEN opcode = OPCODE_HLT ELSE '0';
+    MULTICYCLE_STALL <= '1' WHEN opcode = OPCODE_INT OR opcode = OPCODE_INT2 OR opcode = OPCODE_RTI ELSE '0';
+    COND_BRANCH <= cond_branch_hint;
+    REG_WB_EN_2 <= '1' WHEN opcode = OPCODE_IN OR opcode = OPCODE_SWAP OR opcode = OPCODE_LDM ELSE '0';
+    PC_WRITE_EN <= '1' WHEN opcode = OPCODE_RET OR opcode = OPCODE_INT3 ELSE '0';
 
-    REG_WB_EN <= reg_wb_en_i;
-    UPDATE_FLAGS <= update_flags_i;
-    MEMR <= memr_i;
-    MEMW <= memw_i;
-    OUTPUT_PORT_EN <= output_port_en_i;
-    HLT <= hlt_i;
-    ALU_OP <= alu_op_i;
-    ALU_INPUT_SEL <= alu_input_sel_i;
-    MEM_ADDRESS_SEL <= mem_address_sel_i;
-    MEM_WRITE_SEL <= mem_write_sel_i;
-    COND_BRANCH <= cond_branch_i;
-    PC_WRITE_EN <= pc_write_en_i;
-    SWAP_2ND_CYCLE <= swap_2nd_cycle_i;
-    MULTICYCLE_STALL <= multicycle_stall_i;
-    MULTICYCLE_SEL <= multicycle_sel_i;
 
-    with opcode select reg_wb_en_i <=
-        '0' when OPCODE_NOP | OPCODE_HLT | OPCODE_SETC | OPCODE_OUT | OPCODE_PUSH |
-                 OPCODE_STD | OPCODE_JZ | OPCODE_JN | OPCODE_JC | OPCODE_JMP |
-                 OPCODE_CALL | OPCODE_RET | OPCODE_RTI | OPCODE_INT |
-                 OPCODE_INT2 | OPCODE_INT3,
-        '1' when OPCODE_NOT | OPCODE_INC | OPCODE_IN | OPCODE_MOV | OPCODE_SWAP |
-                 OPCODE_ADD | OPCODE_SUB | OPCODE_AND | OPCODE_IADD | OPCODE_POP |
-                 OPCODE_LDM | OPCODE_LDD | OPCODE_SWAP2,
-        reg_wb_en_i when others;
+    -- complex flag signals
+    MEMW <= '1' WHEN opcode = OPCODE_PUSH OR
+                    opcode = OPCODE_STD OR
+                    opcode = OPCODE_CALL OR
+                    opcode = OPCODE_INT or
+                    opcode = OPCODE_INT2
+                    ELSE '0';
+    MEMR <= '1' WHEN opcode = OPCODE_POP OR
+                    opcode = OPCODE_RET OR
+                    opcode = OPCODE_RTI OR
+                    opcode = OPCODE_LDD OR 
+                    opcode = OPCODE_INT3
+                    ELSE '0';
 
-    with opcode select update_flags_i <=
-        '0' when OPCODE_NOP | OPCODE_HLT | OPCODE_IN | OPCODE_OUT | OPCODE_MOV |
-                 OPCODE_SWAP | OPCODE_PUSH | OPCODE_POP | OPCODE_LDM | OPCODE_LDD |
-                 OPCODE_STD | OPCODE_JZ | OPCODE_JN | OPCODE_JC | OPCODE_JMP |
-                 OPCODE_CALL | OPCODE_RET | OPCODE_INT | OPCODE_SWAP2 |
-                 OPCODE_INT2 | OPCODE_INT3,
-        '1' when OPCODE_SETC | OPCODE_NOT | OPCODE_INC | OPCODE_ADD | OPCODE_SUB |
-                 OPCODE_AND | OPCODE_IADD | OPCODE_RTI,
-        update_flags_i when others;
+    UPDATE_FLAGS <= '1' WHEN opcode = OPCODE_NOT OR
+                        opcode = OPCODE_INC OR
+                        opcode = OPCODE_SETC OR
+                        opcode = OPCODE_ADD OR
+                        opcode = OPCODE_SUB OR
+                        opcode = OPCODE_AND OR
+                        opcode = OPCODE_IADD OR
+                        opcode = OPCODE_RTI
+                        ELSE '0';
+    REG_WB_EN_1 <= '1' WHEN opcode = OPCODE_NOT OR
+                        opcode = OPCODE_INC OR
+                        opcode = OPCODE_ADD OR
+                        opcode = OPCODE_SUB OR
+                        opcode = OPCODE_AND OR
+                        opcode = OPCODE_IADD OR
+                        opcode = OPCODE_LDD OR
+                        opcode = OPCODE_SWAP OR 
+                        opcode = OPCODE_MOV OR
+                        opcode = OPCODE_POP
+                        ELSE '0';
+    -- Selector Signals
+    WITH opcode SELECT
+        MEM_WRITE_SEL <= MEM_WRITE_FLAGS_DATA WHEN OPCODE_INT2,
+                         MEM_WRITE_PC_DATA WHEN OPCODE_CALL | OPCODE_INT,
+                         MEM_WRITE_ALU_DATA WHEN OTHERS;
+    WITH opcode SELECT
+        MEM_ADDRESS_SEL <= MEM_ADDRESS_SP_PUSH WHEN  OPCODE_INT | OPCODE_INT2 | OPCODE_PUSH | OPCODE_CALL,
+                           MEM_ADDRESS_SP_POP WHEN OPCODE_POP | OPCODE_RET | OPCODE_RTI,
+                           MEM_ADDRESS_INT_VECTOR WHEN OPCODE_INT3,
+                           MEM_ADDRESS_CALC WHEN OTHERS;
+    WITH opcode SELECT
+        MULTICYCLE_SEL <= MULTICYCLE_INT2 WHEN OPCODE_INT,
+                          MULTICYCLE_INT3 WHEN OPCODE_INT2,
+                          MULTICYCLE_RET_STEP WHEN OPCODE_RTI,
+                          MULTICYCLE_NONE WHEN OTHERS;
+    WITH opcode SELECT
+        JMP_FLAG_SEL <= JMP_FLAG_Z WHEN OPCODE_JZ,
+                        JMP_FLAG_N WHEN OPCODE_JN,
+                        JMP_FLAG_C WHEN OPCODE_JC,
+                        JMP_FLAG_NONE WHEN OTHERS;
+    WITH opcode SELECT
+        ALU_INPUT_SEL <= ALU_INPUT_IMMEDIATE WHEN OPCODE_IADD | OPCODE_LDM,
+                         ALU_INPUT_IN_PORT WHEN OPCODE_IN,
+                         ALU_INPUT_RSRC2 WHEN OTHERS;
 
-    with opcode select memr_i <=
-        '0' when OPCODE_NOP | OPCODE_HLT | OPCODE_SETC | OPCODE_NOT | OPCODE_INC |
-                 OPCODE_IN | OPCODE_OUT | OPCODE_MOV | OPCODE_SWAP | OPCODE_ADD |
-                 OPCODE_SUB | OPCODE_AND | OPCODE_IADD | OPCODE_PUSH | OPCODE_LDM |
-                 OPCODE_STD | OPCODE_JZ | OPCODE_JN | OPCODE_JC | OPCODE_JMP |
-                 OPCODE_CALL | OPCODE_INT | OPCODE_SWAP2 | OPCODE_INT2 |
-                 OPCODE_INT3,
-        '1' when OPCODE_POP | OPCODE_LDD | OPCODE_RET | OPCODE_RTI,
-        memr_i when others;
-
-    with opcode select memw_i <=
-        '0' when OPCODE_NOP | OPCODE_HLT | OPCODE_SETC | OPCODE_NOT | OPCODE_INC |
-                 OPCODE_IN | OPCODE_OUT | OPCODE_MOV | OPCODE_SWAP | OPCODE_ADD |
-                 OPCODE_SUB | OPCODE_AND | OPCODE_IADD | OPCODE_POP | OPCODE_LDM |
-                 OPCODE_LDD | OPCODE_JZ | OPCODE_JN | OPCODE_JC | OPCODE_JMP |
-                 OPCODE_RET | OPCODE_RTI | OPCODE_SWAP2 | OPCODE_INT3,
-        '1' when OPCODE_PUSH | OPCODE_STD | OPCODE_CALL | OPCODE_INT | OPCODE_INT2,
-        memw_i when others;
-
-    with opcode select output_port_en_i <=
-        '0' when OPCODE_NOP | OPCODE_HLT | OPCODE_SETC | OPCODE_NOT | OPCODE_INC |
-                 OPCODE_IN | OPCODE_MOV | OPCODE_SWAP | OPCODE_ADD | OPCODE_SUB |
-                 OPCODE_AND | OPCODE_IADD,
-        '1' when OPCODE_OUT,
-        output_port_en_i when others;
-
-    with opcode select hlt_i <=
-        '1' when OPCODE_HLT,
-        hlt_i when others;
-
-    with opcode select alu_op_i <=
-        ALU_OP_SETC when OPCODE_SETC,
-        ALU_OP_NOT_A when OPCODE_NOT,
-        ALU_OP_INC_A when OPCODE_INC,
-        ALU_OP_PASS_B when OPCODE_IN | OPCODE_LDM,
-        ALU_OP_PASS_A when OPCODE_OUT | OPCODE_MOV | OPCODE_SWAP | OPCODE_PUSH |
-                           OPCODE_POP | OPCODE_STD | OPCODE_JZ | OPCODE_JN |
-                           OPCODE_JC | OPCODE_JMP | OPCODE_CALL | OPCODE_RET |
-                           OPCODE_RTI | OPCODE_INT,
-        ALU_OP_ADD when OPCODE_ADD | OPCODE_IADD | OPCODE_LDD,
-        ALU_OP_SUB when OPCODE_SUB,
-        ALU_OP_AND when OPCODE_AND,
-        alu_op_i when others;
-
-    with opcode select alu_input_sel_i <=
-        ALU_INPUT_IN_PORT when OPCODE_IN,
-        ALU_INPUT_RSRC2 when OPCODE_ADD | OPCODE_SUB | OPCODE_AND,
-        ALU_INPUT_IMMEDIATE when OPCODE_IADD,
-        alu_input_sel_i when others;
-
-    with opcode select mem_address_sel_i <=
-        MEM_ADDRESS_SP_PUSH when OPCODE_PUSH | OPCODE_CALL | OPCODE_INT | OPCODE_INT2,
-        MEM_ADDRESS_SP_POP when OPCODE_POP | OPCODE_RET | OPCODE_RTI,
-        MEM_ADDRESS_CALC when OPCODE_LDM | OPCODE_LDD | OPCODE_STD | OPCODE_JZ |
-                               OPCODE_JN | OPCODE_JC | OPCODE_JMP | OPCODE_SWAP2,
-        MEM_ADDRESS_INT_VECTOR when OPCODE_INT3,
-        mem_address_sel_i when others;
-
-    with opcode select mem_write_sel_i <=
-        MEM_WRITE_ALU_DATA when OPCODE_PUSH | OPCODE_POP | OPCODE_LDM | OPCODE_LDD |
-                              OPCODE_STD | OPCODE_JZ | OPCODE_JN | OPCODE_JC |
-                              OPCODE_JMP | OPCODE_RTI | OPCODE_SWAP2 |
-                              OPCODE_INT3,
-        MEM_WRITE_PC_DATA when OPCODE_CALL | OPCODE_RET | OPCODE_INT,
-        MEM_WRITE_FLAGS_DATA when OPCODE_INT2,
-        mem_write_sel_i when others;
-
-    with opcode select cond_branch_i <=
-        '0' when OPCODE_PUSH | OPCODE_POP | OPCODE_LDM | OPCODE_LDD | OPCODE_STD |
-                 OPCODE_JMP | OPCODE_CALL | OPCODE_RET | OPCODE_RTI | OPCODE_INT,
-        '1' when OPCODE_JZ | OPCODE_JN | OPCODE_JC,
-        cond_branch_i when others;
-
-    with opcode select pc_write_en_i <=
-        '0' when OPCODE_PUSH | OPCODE_POP | OPCODE_LDM | OPCODE_LDD | OPCODE_STD |
-                 OPCODE_JZ | OPCODE_JN | OPCODE_JC | OPCODE_JMP | OPCODE_CALL |
-                 OPCODE_INT2,
-        '1' when OPCODE_RET | OPCODE_RTI | OPCODE_INT | OPCODE_SWAP2 | OPCODE_INT3,
-        pc_write_en_i when others;
-
-    with opcode select swap_2nd_cycle_i <=
-        '1' when OPCODE_SWAP | OPCODE_SWAP2,
-        '0' when OPCODE_INT2 | OPCODE_INT3,
-        swap_2nd_cycle_i when others;
-
-    with opcode select multicycle_stall_i <=
-        '1' when OPCODE_SWAP | OPCODE_INT | OPCODE_INT2,
-        '0' when OPCODE_SWAP2 | OPCODE_INT3,
-        multicycle_stall_i when others;
-
-    with opcode select multicycle_sel_i <=
-        MULTICYCLE_SWAP2 when OPCODE_SWAP,
-        MULTICYCLE_INT2 when OPCODE_INT,
-        MULTICYCLE_NONE when OPCODE_SWAP2 | OPCODE_INT3,
-        MULTICYCLE_INT3 when OPCODE_INT2,
-        multicycle_sel_i when others;
+    with opcode SELECT
+        ALU_OP <= ALU_OP_ADD WHEN OPCODE_ADD | OPCODE_IADD,
+                  ALU_OP_SUB WHEN OPCODE_SUB,
+                  ALU_OP_AND WHEN OPCODE_AND,
+                  ALU_OP_NOT_A WHEN OPCODE_NOT,
+                  ALU_OP_INC_A WHEN OPCODE_INC,
+                  ALU_OP_SETC WHEN OPCODE_SETC,
+                  ALU_OP_NOP WHEN OPCODE_NOP,
+                  ALU_OP_PASS WHEN OTHERS;
 END ARCHITECTURE rtl;

@@ -5,8 +5,8 @@ PACKAGE isa_defs_pkg IS
     SUBTYPE opcode_t IS STD_LOGIC_VECTOR(4 DOWNTO 0);
     SUBTYPE reg_idx_t IS STD_LOGIC_VECTOR(2 DOWNTO 0);
 
-    SUBTYPE alu_op_t IS STD_LOGIC_VECTOR(3 DOWNTO 0);
-    SUBTYPE alu_input_sel_t IS STD_LOGIC_VECTOR(2 DOWNTO 0);
+    SUBTYPE alu_op_t IS STD_LOGIC_VECTOR(2 DOWNTO 0);
+    SUBTYPE alu_input_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
     SUBTYPE jmp_flag_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
     SUBTYPE mem_address_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
     SUBTYPE mem_write_sel_t IS STD_LOGIC_VECTOR(1 DOWNTO 0);
@@ -57,22 +57,19 @@ PACKAGE isa_defs_pkg IS
     CONSTANT BR_HINT_UNCOND_BIT : INTEGER := 16;
 
     -- ALU operation identifiers.
-    CONSTANT ALU_OP_NOP : alu_op_t := "0000";
-    CONSTANT ALU_OP_PASS_A : alu_op_t := "0001";
-    CONSTANT ALU_OP_PASS_B : alu_op_t := "0010";
-    CONSTANT ALU_OP_NOT_A : alu_op_t := "0011";
-    CONSTANT ALU_OP_INC_A : alu_op_t := "0100";
-    CONSTANT ALU_OP_SETC : alu_op_t := "0101";
-    CONSTANT ALU_OP_ADD : alu_op_t := "0110";
-    CONSTANT ALU_OP_SUB : alu_op_t := "0111";
-    CONSTANT ALU_OP_AND : alu_op_t := "1000";
-    CONSTANT ALU_OP_SWAP : alu_op_t := "1001";
-    -- SWAP/INT micro-operations reuse generic PASS_A/PASS_B with control-path sequencing.
+    CONSTANT ALU_OP_NOP : alu_op_t := "000"; -- No operation; no flags updated
+    CONSTANT ALU_OP_PASS : alu_op_t := "001"; -- Pass A to Res1 and B to Res2; no flags updated
+    CONSTANT ALU_OP_NOT_A : alu_op_t := "010"; -- update flags
+    CONSTANT ALU_OP_INC_A : alu_op_t := "011"; -- update flags
+    CONSTANT ALU_OP_SETC : alu_op_t := "100"; -- update carry only
+    CONSTANT ALU_OP_ADD : alu_op_t := "101"; -- update flags
+    CONSTANT ALU_OP_SUB : alu_op_t := "110"; -- update flags
+    CONSTANT ALU_OP_AND : alu_op_t := "111"; -- update flags
 
     -- ALU input select.
-    CONSTANT ALU_INPUT_RSRC2 : alu_input_sel_t := "000";
-    CONSTANT ALU_INPUT_IN_PORT : alu_input_sel_t := "001";
-    CONSTANT ALU_INPUT_IMMEDIATE : alu_input_sel_t := "010";
+    CONSTANT ALU_INPUT_RSRC2 : alu_input_sel_t := "00";
+    CONSTANT ALU_INPUT_IN_PORT : alu_input_sel_t := "01";
+    CONSTANT ALU_INPUT_IMMEDIATE : alu_input_sel_t := "10";
 
     -- Branch condition selector.
     CONSTANT JMP_FLAG_Z : jmp_flag_sel_t := "00";
