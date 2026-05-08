@@ -48,8 +48,8 @@ PACKAGE isa_defs_pkg IS
     CONSTANT OPCODE_INT3  : opcode_t := "01111";
 
     -- Interrupt index encoding in instruction bits [1:0].
-    CONSTANT INT_IDX_SW_0 : int_idx_t := "10";
     CONSTANT INT_IDX_HW   : int_idx_t := "01";
+    CONSTANT INT_IDX_SW_0 : int_idx_t := "10";
     CONSTANT INT_IDX_SW_1 : int_idx_t := "11";
 
     -- Early decode branch hint bits in instr[31:0].

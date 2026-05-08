@@ -27,7 +27,6 @@ END ENTITY mux_16to1;
 
 ARCHITECTURE rtl OF mux_16to1 IS
 BEGIN
-    -- TODO: implement 16:1 mux
     output <= input_0 when sel = "0000" else
               input_1 when sel = "0001" else
               input_2 when sel = "0010" else
