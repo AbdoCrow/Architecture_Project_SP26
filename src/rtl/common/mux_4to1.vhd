@@ -15,7 +15,6 @@ END ENTITY mux_4to1;
 
 ARCHITECTURE rtl OF mux_4to1 IS
 BEGIN
-    -- TODO: implement 4:1 mux
     output <= input_0 when sel = "00" else
               input_1 when sel = "01" else
               input_2 when sel = "10" else

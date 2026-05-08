@@ -19,7 +19,6 @@ END ENTITY mux_8to1;
 
 ARCHITECTURE rtl OF mux_8to1 IS
 BEGIN
-    -- TODO: implement 8:1 mux
     output <= input_0 when sel = "000" else
               input_1 when sel = "001" else
               input_2 when sel = "010" else

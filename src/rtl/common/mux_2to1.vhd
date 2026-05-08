@@ -13,6 +13,5 @@ END ENTITY mux_2to1;
 
 ARCHITECTURE rtl OF mux_2to1 IS
 BEGIN
-    -- TODO: implement 2:1 mux
     output <= input_0 when sel = '0' else input_1;
 END ARCHITECTURE rtl;
