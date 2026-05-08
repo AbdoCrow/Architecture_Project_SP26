@@ -16,7 +16,17 @@ ENTITY register_file IS
         read_addr_1 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         read_addr_2 : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         read_data_1 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        read_data_2 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        read_data_2 : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        -- monitoring register values for debugging
+        reg0_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        reg1_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        reg2_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        reg3_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        reg4_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        reg5_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        reg6_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+        reg7_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+
     );
 END ENTITY register_file;
 
@@ -40,4 +50,12 @@ BEGIN
 
     read_data_1 <= registers(TO_INTEGER(UNSIGNED(read_addr_1)));
     read_data_2 <= registers(TO_INTEGER(UNSIGNED(read_addr_2)));
+    reg0_out <= registers(0);
+    reg1_out <= registers(1);
+    reg2_out <= registers(2);
+    reg3_out <= registers(3);
+    reg4_out <= registers(4);
+    reg5_out <= registers(5);
+    reg6_out <= registers(6);
+    reg7_out <= registers(7);
 END ARCHITECTURE rtl;

@@ -1,1 +1,1 @@
-do scripts/do_files/component_testbenches/hazard_control_unit_testbench.do
+do scripts/do_files/pipeline_stages_tb/decode_tb.do
