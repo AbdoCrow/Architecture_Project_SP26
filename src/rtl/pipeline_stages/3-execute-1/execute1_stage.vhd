@@ -47,5 +47,5 @@ END ENTITY execute1_stage;
 ARCHITECTURE rtl OF execute1_stage IS
 BEGIN
     -- Should contain flag_reg and ALU
-    -- control signals that will path through should not be registered here
+    -- control signals that will path through should not be registered here(for example next_pc will not be used here so it is not inside the stage)
 END ARCHITECTURE rtl;
