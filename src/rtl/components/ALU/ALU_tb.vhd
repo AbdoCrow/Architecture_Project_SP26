@@ -12,7 +12,7 @@ ARCHITECTURE tb OF ALU_tb IS
     --------------------------------------------------------------------
     SIGNAL A, B : STD_LOGIC_VECTOR(31 DOWNTO 0);
     SIGNAL prev_flags,output_flags : STD_LOGIC_VECTOR(2 DOWNTO 0);
-    SIGNAL ALUOp : ALU_OP_TYPE;
+    SIGNAL ALUOP : alu_op_t;
     SIGNAL Result1, Result2 : STD_LOGIC_VECTOR(31 DOWNTO 0);
 BEGIN
 
@@ -25,7 +25,7 @@ BEGIN
             B => B,
             prev_flags => prev_flags,
             output_flags => output_flags,
-            ALUOp => ALUOp,
+            ALUOP => ALUOP,
             Result1 => Result1,
             Result2 => Result2
         );
@@ -56,7 +56,7 @@ BEGIN
         A <= x"00000005"; -- 5
         B <= x"00000003"; -- 3
         prev_flags <= "000"; -- No flags set
-        ALUOp <= ALU_OP_ADD; -- ADD operation
+        ALUOP <= ALU_OP_ADD; -- ADD operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000008", x"00000000", "000"); -- Expect 8, no flags set
         REPORT "Test 1 passed: ADD operation" SEVERITY NOTE;
@@ -65,7 +65,7 @@ BEGIN
         A <= x"00000003"; -- 3
         B <= x"00000005"; -- 5
         prev_flags <= "000"; -- No flags set
-        ALUOp <= ALU_OP_SUB; -- SUB operation
+        ALUOP <= ALU_OP_SUB; -- SUB operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"FFFFFFFD", x"00000000", "001"); -- Expect -2, zero flag set
         REPORT "Test 2 passed: SUB operation with negative result" SEVERITY NOTE;
@@ -74,7 +74,7 @@ BEGIN
         A <= x"0000000F"; -- 15
         B <= x"00000003"; -- 3
         prev_flags <= "000"; -- No flags set
-        ALUOp <= ALU_OP_AND; -- AND operation
+        ALUOP <= ALU_OP_AND; -- AND operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000003", x"00000000", "001"); -- Expect 3, zero flag set
         REPORT "Test 3 passed: AND operation" SEVERITY NOTE;
@@ -83,7 +83,7 @@ BEGIN
         A <= x"FFFFFFFF"; -- -1
         B <= x"00000000"; -- 0 (ignored for INC)
         prev_flags <= "000"; -- No flags set
-        ALUOp <= ALU_OP_INC_A; -- INC operation
+        ALUOP <= ALU_OP_INC_A; -- INC operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000000", x"00000000", "011"); -- Expect 0, zero and carry flags set
         REPORT "Test 4 passed: INC operation with overflow" SEVERITY NOTE;
@@ -92,7 +92,7 @@ BEGIN
         A <= x"0000000F"; -- 15
         B <= x"00000000"; -- 0 (ignored for NOT)
         prev_flags <= "000"; -- No flags set
-        ALUOp <= ALU_OP_NOT_A; -- NOT operation
+        ALUOP <= ALU_OP_NOT_A; -- NOT operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"FFFFFFF0", x"00000000", "111"); -- Expect -16, all flags set
         REPORT "Test 5 passed: NOT operation" SEVERITY NOTE;
@@ -100,7 +100,7 @@ BEGIN
         A <= x"12345678"; -- Arbitrary value
         B <= x"55678910"; -- Arbitrary value
         prev_flags <= "000"; -- No flags set
-        ALUOp <= ALU_OP_PASS; -- PASS operation
+        ALUOP <= ALU_OP_PASS; -- PASS operation
         WAIT FOR CLK_PERIOD; 
         check_alu_results(x"12345678", x"55678910", "000"); -- Expect A and B to be passed through, no flags set
         REPORT "Test 6 passed: PASS operation" SEVERITY NOTE;
@@ -109,7 +109,7 @@ BEGIN
         A <= x"12345678"; -- Arbitrary value
         B <= x"55678910"; -- Arbitrary value
         prev_flags <= "000"; -- No flags set
-        ALUOp <= ALU_OP_NOP; -- NOP operation
+        ALUOP <= ALU_OP_NOP; -- NOP operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000000", x"00000000", "000"); -- Expect no change, no flags set
         REPORT "Test 7 passed: NOP operation" SEVERITY NOTE;
@@ -118,7 +118,7 @@ BEGIN
         A <= x"00000000"; -- 0 (ignored for SETC)
         B <= x"00000000"; -- 0 (ignored for SETC)
         prev_flags <= "001"; --  Zero flag set
-        ALUOp <= ALU_OP_SETC; -- SETC operation
+        ALUOP <= ALU_OP_SETC; -- SETC operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000000", x"00000000", "101"); -- Expect no change, carry flag set
         REPORT "Test 8 passed: SETC operation" SEVERITY NOTE;

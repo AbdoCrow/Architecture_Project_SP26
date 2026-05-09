@@ -7,7 +7,7 @@ ENTITY ALU IS
         B       : IN  STD_LOGIC_VECTOR(31 DOWNTO 0);
         prev_flags : IN  STD_LOGIC_VECTOR(2 DOWNTO 0);
         output_flags : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
-        ALUOp   : IN  ALU_OP_TYPE;
+        ALUOP   : IN  alu_op_t;
         Result1  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         Result2  : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
