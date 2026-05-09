@@ -74,7 +74,7 @@ WITH RSRC2_SEL SELECT
          fwd_wb_data_2 when FWD_FROM_MEM_PORT2,
          read_data_2_in WHEN OTHERS;
 WITH ALU_INPUT_SEL SELECT
-    B <= (15 downto 0 => imm_offset_in(15)) & imm_offset_in when ALU_INPUT_IMMEDIATE, --sign extend immediate
+    B <= (15 downto 0 => '0') & imm_offset_in when ALU_INPUT_IMMEDIATE, --sign extend immediate
          input_port_data_in when ALU_INPUT_IN_PORT,
          B1 when OTHERS;
 WITH FLAG_SRC_SEL SELECT

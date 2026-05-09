@@ -395,7 +395,7 @@ class RISCAssembler:
                     raise ValueError(f"{mnemonic} requires Rd, Imm")
                 rd  = self.parse_register(parts[1])
                 imm = self.parse_immediate(parts[2], 16, allow_labels=True)
-                instructions.append(opcode + rd + '0' * 8 + imm)
+                instructions.append(opcode + rd + rd +'0' * 5 + imm)
 
             elif mnemonic == 'LDD':
                 if len(parts) < 3:

@@ -9,7 +9,7 @@
 # USER CONFIGURATION — edit these two lines before running
 # -----------------------------------------------------------------------------
 set ASM_FILE  "testcases/test1.asm"     ;# path to your .asm source file
-set RUN_TIME  "10 us"           ;# simulation duration after reset release
+set RUN_TIME  "3 us"           ;# simulation duration after reset release
 
 # Memory hierarchy path — find this with:
 #   find /processor -name mem
@@ -80,45 +80,50 @@ add wave -noupdate -label "RESET"  -color "Orange"       sim:/processor/reset
 add wave -noupdate -label "INTR"   -color "Orange"       sim:/processor/intr_in
 
 # ---- Ports ------------------------------------------------------------------
-add wave -noupdate -label "IN_PORT"  -radix hexadecimal  sim:/processor/in_port
-add wave -noupdate -label "OUT_PORT" -radix hexadecimal  sim:/processor/out_port
+add wave -noupdate -label "IN_PORT"  -radix hex  sim:/processor/in_port
+add wave -noupdate -label "OUT_PORT" -radix hex  sim:/processor/out_port
 
 # ---- Programmer-visible state -----------------------------------------------
-add wave -noupdate -label "PC"   -radix hexadecimal  sim:/processor/pc_monitor
-add wave -noupdate -label "SP"   -radix hexadecimal  sim:/processor/sp_monitor
+add wave -noupdate -label "PC"   -radix hex  sim:/processor/pc_monitor
+add wave -noupdate -label "SP"   -radix hex  sim:/processor/sp_monitor
 add wave -noupdate -label "CCR"  -radix binary       sim:/processor/ccr_monitor
+# add wave -r sim:/processor/fetch_stage_inst/*
+# add wave -noupdate -label "RESET_VECTOR" -radix hex  sim:/processor/memory_inst/memory_location_zero_out
 
 # ---- Register file ----------------------------------------------------------
-add wave -noupdate -label "R0" -radix hexadecimal  sim:/processor/r0_monitor
-add wave -noupdate -label "R1" -radix hexadecimal  sim:/processor/r1_monitor
-add wave -noupdate -label "R2" -radix hexadecimal  sim:/processor/r2_monitor
-add wave -noupdate -label "R3" -radix hexadecimal  sim:/processor/r3_monitor
-add wave -noupdate -label "R4" -radix hexadecimal  sim:/processor/r4_monitor
-add wave -noupdate -label "R5" -radix hexadecimal  sim:/processor/r5_monitor
-add wave -noupdate -label "R6" -radix hexadecimal  sim:/processor/r6_monitor
-add wave -noupdate -label "R7" -radix hexadecimal  sim:/processor/r7_monitor
+add wave -noupdate -label "R0" -radix hex  sim:/processor/r0_monitor
+add wave -noupdate -label "R1" -radix hex  sim:/processor/r1_monitor
+add wave -noupdate -label "R2" -radix hex  sim:/processor/r2_monitor
+add wave -noupdate -label "R3" -radix hex  sim:/processor/r3_monitor
+add wave -noupdate -label "R4" -radix hex  sim:/processor/r4_monitor
+add wave -noupdate -label "R5" -radix hex  sim:/processor/r5_monitor
+add wave -noupdate -label "R6" -radix hex  sim:/processor/r6_monitor
+add wave -noupdate -label "R7" -radix hex  sim:/processor/r7_monitor
 
 # ---- Pipeline stage visibility (comment out if signals don't exist yet) -----
-add wave -noupdate -label "IF  instr"    -radix hexadecimal  sim:/processor/fetch_instr
-add wave -noupdate -label "IF  next_pc"  -radix hexadecimal  sim:/processor/fetch_next_pc
+# add wave -noupdate -label "IF  instr"    -radix hex  sim:/processor/fetch_instr
+# add wave -noupdate -label "IF  next_pc"  -radix hex  sim:/processor/fetch_next_pc
 
-add wave -noupdate -label "ID  instr"    -radix hexadecimal  sim:/processor/decode_instr
-add wave -noupdate -label "ID  next_pc"  -radix hexadecimal  sim:/processor/dec_next_pc
+# add wave -noupdate -label "ID  instr"    -radix hex  sim:/processor/decode_instr
+# add wave -noupdate -label "ID  next_pc"  -radix hex  sim:/processor/dec_next_pc
 
-add wave -noupdate -label "EX1 next_pc"  -radix hexadecimal  sim:/processor/ex1_next_pc
+# add wave -noupdate -label "EX1 next_pc"  -radix hex  sim:/processor/ex1_next_pc
 
-add wave -noupdate -label "EX2 next_pc"  -radix hexadecimal  sim:/processor/ex2_next_pc
-add wave -noupdate -label "EX2 br_result"                     sim:/processor/ex2_branch_result
-add wave -noupdate -label "EX2 correct_pc" -radix hexadecimal sim:/processor/ex2_correct_pc_value
+# add wave -noupdate -label "EX2 next_pc"  -radix hex  sim:/processor/ex2_next_pc
+# add wave -noupdate -label "EX2 br_result"                     sim:/processor/ex2_branch_result
+# add wave -noupdate -label "EX2 correct_pc" -radix hex sim:/processor/ex2_correct_pc_value
 
-add wave -noupdate -label "MEM next_pc"  -radix hexadecimal  sim:/processor/mem_next_pc
-add wave -noupdate -label "MEM address"  -radix hexadecimal  sim:/processor/mem_address
+# add wave -noupdate -label "MEM next_pc"  -radix hex  sim:/processor/mem_next_pc
+# add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_address
 
 add wave -noupdate -label "STALL"          sim:/processor/haz_STALL
 add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
-add wave -noupdate -label "RSRC1_SEL" -radix unsigned  sim:/processor/fwd_RSRC1_SEL
-add wave -noupdate -label "RSRC2_SEL" -radix unsigned  sim:/processor/fwd_RSRC2_SEL
-add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
+# add wave -noupdate -label "RSRC1_SEL" -radix unsigned  sim:/processor/fwd_RSRC1_SEL
+# add wave -noupdate -label "RSRC2_SEL" -radix unsigned  sim:/processor/fwd_RSRC2_SEL
+# add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
+
+# add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
+
 
 configure wave -namecolwidth  200
 configure wave -valuecolwidth 120
@@ -155,9 +160,14 @@ force -freeze sim:/processor/reset  1 0
 run 200ns
 force -freeze sim:/processor/reset  0 0
 
+# run $RUN_TIME
+
+# =============================================================================
+# INPUT STIMULUS
+# =============================================================================
+
+force -freeze sim:/processor/in_port 16#FFFFFFFF 0
 run $RUN_TIME
-
-
 # =============================================================================
 # STEP 7 — Fit waveform window
 # =============================================================================

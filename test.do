@@ -1,1 +1,1 @@
-do scripts/do_files/component_testbenches/ALU_testbench.do
+do scripts/do_files/pipeline_stages_tb/fetch_tb.do

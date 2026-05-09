@@ -191,7 +191,6 @@ ARCHITECTURE rtl OF processor IS
     -- =========================================================
     signal haz_STALL            : STD_LOGIC;
     signal haz_FLUSH            : STD_LOGIC;
-    signal haz_MULTICYCLE_STALL : STD_LOGIC;
     signal haz_FETCH_MEMORY_HAZARD : STD_LOGIC;
     signal haz_ALLOW_HW_INT     : STD_LOGIC;
     signal haz_CORRECT_PC       : STD_LOGIC;
@@ -285,7 +284,7 @@ hazard_control_unit_inst : ENTITY work.hazard_control_unit
         ID_COND_BRANCH        => dec_ID_COND_BRANCH,
 
 
-        MULTICYCLE_STALL      => haz_MULTICYCLE_STALL,
+        MULTICYCLE_STALL      => dec_MULTICYCLE_STALL,
         HARDWARE_INTERRUPT    => int_INT_REQUEST,
         ALLOW_HW_INT          => haz_ALLOW_HW_INT,
         STALL                 => haz_STALL,
@@ -303,6 +302,7 @@ Interrupt_handler_inst : ENTITY work.interrupt_handler
     MEMORY_READ_EN <= mem_MEMR or NOT haz_FETCH_MEMORY_HAZARD; -- 2 to 1 mux simplifed
     MEMORY_WRITE_EN <= mem_MEMW; -- simplied mux too
     mem_addr <= mem_address(11 downto 0) WHEN haz_FETCH_MEMORY_HAZARD = '1' ELSE fetch_pc_out(11 DOWNTO 0); 
+    pc_monitor <= fetch_pc_out;
 memory_inst: ENTITY work.memory
     PORT MAP (
         clk => clk,
@@ -322,7 +322,7 @@ fetch_stage_inst : ENTITY work.fetch_stage
 
         PC_WRITE_ENABLE          => ex2_PC_WRITE_EN,
         FETCH_STALL              => haz_STALL,
-        MULTICYCLE_STALL         => haz_MULTICYCLE_STALL,
+        MULTICYCLE_STALL         => dec_MULTICYCLE_STALL,
         MULTICYCLE_SEL           => dec_MULTICYCLE_SEL,
         FLUSH                    => haz_FLUSH,
 
@@ -472,7 +472,7 @@ decode_stage_inst : ENTITY work.decode_stage
         read_reg_1_out => ex1_read_reg_1,
         read_reg_2_out  => ex1_read_reg_2
     );
-EX1_Stage_inst : ENTITY work.execute1_stage
+execute1_stage_inst : ENTITY work.execute1_stage
     PORT MAP (
         clk => clk,
         reset => reset,

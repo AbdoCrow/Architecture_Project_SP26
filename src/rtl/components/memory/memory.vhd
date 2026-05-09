@@ -17,7 +17,9 @@ ENTITY memory IS
         mem_data_in : IN STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
         mem_data_out : OUT STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
         MEMORY_READ_EN : IN STD_LOGIC;
-        MEMORY_WRITE_EN : IN STD_LOGIC
+        MEMORY_WRITE_EN : IN STD_LOGIC;
+        --debug 
+        memory_location_zero_out : OUT STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0)
     );
 END ENTITY memory;
 
@@ -25,6 +27,7 @@ ARCHITECTURE rtl OF memory IS
 type memory_array_type is array (0 to MEMORY_SIZE - 1) of STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
 signal memory_array : memory_array_type := (others => (others => '0'));
 BEGIN
+    memory_location_zero_out <= memory_array(0); -- For debugging purposes, always output the value at address 0
     process(clk)
     begin
         if RESET = '1' then

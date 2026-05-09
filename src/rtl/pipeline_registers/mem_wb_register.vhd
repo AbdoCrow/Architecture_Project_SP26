@@ -45,7 +45,7 @@ BEGIN
             wb_data_2_out <= (OTHERS => '0');
             reg_write_address_1_out <= (OTHERS => '0');
             reg_write_address_2_out <= (OTHERS => '0');
-        ELSIF falling_edge(clk) THEN
+        ELSIF rising_edge(clk) THEN
             UPDATE_FLAGS_OUT <= UPDATE_FLAGS_IN;
             OUTPUT_PORT_EN_OUT <= OUTPUT_PORT_EN_IN;
             REG_WB_EN_1_OUT <= REG_WB_EN_1_IN;
