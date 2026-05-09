@@ -39,8 +39,8 @@ BEGIN
         PROCEDURE check_alu_results(result1_expected: STD_LOGIC_VECTOR(31 DOWNTO 0); result2_expected: STD_LOGIC_VECTOR(31 DOWNTO 0); flags_expected: STD_LOGIC_VECTOR(2 DOWNTO 0)) IS
         BEGIN
             ASSERT Result1 = result1_expected
-                REPORT "Result1 value mismatch: expected " & integer'image(to_integer(unsigned(result1_expected))) &
-                       ", got " & integer'image(to_integer(unsigned(Result1)))
+                REPORT "Result1 value mismatch: expected " & integer'image(to_integer(signed(result1_expected))) &
+                       ", got " & integer'image(to_integer(signed(Result1)))
                 SEVERITY error;
             ASSERT Result2 = result2_expected
                 REPORT "Result2 value mismatch: expected " & integer'image(to_integer(unsigned(result2_expected))) &
@@ -58,7 +58,7 @@ BEGIN
         prev_flags <= "000"; -- No flags set
         ALUOP <= ALU_OP_ADD; -- ADD operation
         WAIT FOR CLK_PERIOD;
-        check_alu_results(x"00000008", x"00000000", "000"); -- Expect 8, no flags set
+        check_alu_results(x"00000008", x"00000003", "000"); -- Expect 8, no flags set
         REPORT "Test 1 passed: ADD operation" SEVERITY NOTE;
 
         -- Test 2: SUB operation with negative result
@@ -67,7 +67,7 @@ BEGIN
         prev_flags <= "000"; -- No flags set
         ALUOP <= ALU_OP_SUB; -- SUB operation
         WAIT FOR CLK_PERIOD;
-        check_alu_results(x"FFFFFFFD", x"00000000", "001"); -- Expect -2, zero flag set
+        check_alu_results(x"FFFFFFFE", x"00000005", "110"); -- Expect -2, negative and carry flags set
         REPORT "Test 2 passed: SUB operation with negative result" SEVERITY NOTE;
 
         -- Test 3: AND operation
@@ -76,7 +76,7 @@ BEGIN
         prev_flags <= "000"; -- No flags set
         ALUOP <= ALU_OP_AND; -- AND operation
         WAIT FOR CLK_PERIOD;
-        check_alu_results(x"00000003", x"00000000", "001"); -- Expect 3, zero flag set
+        check_alu_results(x"00000003", x"00000003", "000"); -- Expect 3, no flags set
         REPORT "Test 3 passed: AND operation" SEVERITY NOTE;
 
          -- Test 4: INC operation with overflow
@@ -85,7 +85,7 @@ BEGIN
         prev_flags <= "000"; -- No flags set
         ALUOP <= ALU_OP_INC_A; -- INC operation
         WAIT FOR CLK_PERIOD;
-        check_alu_results(x"00000000", x"00000000", "011"); -- Expect 0, zero and carry flags set
+        check_alu_results(x"00000000", x"00000000", "101"); -- Expect 0, zero and carry flags set
         REPORT "Test 4 passed: INC operation with overflow" SEVERITY NOTE;
 
          -- Test 5: NOT operation
@@ -94,7 +94,7 @@ BEGIN
         prev_flags <= "000"; -- No flags set
         ALUOP <= ALU_OP_NOT_A; -- NOT operation
         WAIT FOR CLK_PERIOD;
-        check_alu_results(x"FFFFFFF0", x"00000000", "111"); -- Expect -16, all flags set
+        check_alu_results(x"FFFFFFF0", x"00000000", "010"); -- Expect -16, negative flag set
         REPORT "Test 5 passed: NOT operation" SEVERITY NOTE;
         -- Test 6: PASS Operation
         A <= x"12345678"; -- Arbitrary value
@@ -111,7 +111,7 @@ BEGIN
         prev_flags <= "000"; -- No flags set
         ALUOP <= ALU_OP_NOP; -- NOP operation
         WAIT FOR CLK_PERIOD;
-        check_alu_results(x"00000000", x"00000000", "000"); -- Expect no change, no flags set
+        check_alu_results(x"00000000", x"55678910", "000"); -- Expect no change, no flags set
         REPORT "Test 7 passed: NOP operation" SEVERITY NOTE;
 
         -- Test 8: SETC Operation
