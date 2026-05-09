@@ -46,25 +46,47 @@ BEGIN
 Interrupt_handler_inst : ENTITY work.interrupt_handler
     PORT MAP (
         clk => clk,
-        reset => reset
+        reset => reset,
+        HW_INT_SIGNAL => open,
+        INT_STARTED => open,
+        INT_REQUEST => open
     );
 memory_inst: ENTITY work.memory
     PORT MAP (
         clk => clk,
-        reset => reset
-    );
-output_port_inst : ENTITY work.output_port
-    PORT MAP (
-        clk => clk,
         reset => reset,
-        out_port => out_port
+        mem_addr => open,
+        mem_data_in => open,
+        mem_data_out => open,
+        MEMORY_READ_EN => open,
+        MEMORY_WRITE_EN => open
     );
 fetch_stage_inst : ENTITY work.fetch_stage
     PORT MAP (
         clk => clk,
         reset => reset,
         next_pc_out => fetch_next_pc,
-        instr_out => fetch_instr
+        instr_out => fetch_instr,
+
+        PC_WRITE_ENABLE => open,
+        FETCH_STALL => open,
+        MULTICYCLE_STALL => open,
+        MULTICYCLE_SEL => open,
+        FLUSH => open,
+
+        CORRECT_PC => open,
+        correct_pc_value => open,
+        fetched_instruction_in => open,
+        loaded_pc_in => open,   
+        DECODE_INT_TARGET_IDX => open,
+        COND_BRANCH => open,
+        BRANCH_TAKEN => open,
+        HLT => open,
+        FETCH_MEMORY_HAZARD => open,
+        ALLOW_HW_INT => open,
+        pc_out => open,
+        branch_prediction_out => open
+        
     );
 
 IF_ID_reg_inst : ENTITY work.if_id_register
@@ -75,6 +97,7 @@ IF_ID_reg_inst : ENTITY work.if_id_register
         next_pc_out => dec_next_pc,
         instr_in => fetch_instr,
         instr_out => decode_instr
+        
     );
 decode_stage_inst : ENTITY work.decode_stage
     PORT MAP (
@@ -143,4 +166,13 @@ MEM_WB_reg_inst : ENTITY work.mem_wb_register
         reg_write_address_2_in => mem_reg_write_address_2,
         reg_write_address_2_out => wb_reg_write_address_2
     );
+output_port_inst : ENTITY work.output_port
+    PORT MAP (
+        clk => clk,
+        reset => reset,
+        enable => open,
+        output_port_in => open,
+        output_port_out => out_port
+    );
+
 END ARCHITECTURE rtl;

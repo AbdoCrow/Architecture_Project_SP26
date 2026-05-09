@@ -37,7 +37,11 @@ ENTITY execute1_stage IS
 
         fwd_ex2_flags : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
         fwd_mem_flags : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
-        flag_wb : IN STD_LOGIC_VECTOR(2 DOWNTO 0)
+        flag_wb : IN STD_LOGIC_VECTOR(2 DOWNTO 0);
+
+
+        --debug 
+        CCR_monitor : OUT STD_LOGIC_VECTOR(2 DOWNTO 0)
 
 
 
