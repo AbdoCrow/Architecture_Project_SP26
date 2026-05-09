@@ -1,12 +1,10 @@
 LIBRARY IEEE;
 USE IEEE.STD_LOGIC_1164.ALL;
+USE IEEE.NUMERIC_STD.ALL;
 USE work.isa_defs_pkg.ALL;
 
 ENTITY execute2_stage IS
     PORT (
-        clk : IN STD_LOGIC;
-        reset : IN STD_LOGIC;
-
         COND_BRANCH_IN : IN STD_LOGIC;
         JMP_FLAG_SEL_IN : IN jmp_flag_sel_t;
 
@@ -29,4 +27,16 @@ ARCHITECTURE rtl OF execute2_stage IS
 BEGIN
  
     -- control signals that will path through should not be registered here
+jump_detection_unit: entity work.jump_detection_unit
+    PORT MAP (
+        flags_in  => corrected_ccr_flags_in,
+        COND_BRANCH => COND_BRANCH_IN,
+        JMP_FLAG_SEL => JMP_FLAG_SEL_IN,
+        branch_result => branch_result_out
+    );
+    correct_pc_value_out <= next_pc_in when branch_prediction_in = '1' else  (15 downto 0 => '0') & imm_offset_in;
+    mem_adr_out <= std_logic_vector(unsigned(base_reg_data_in) + unsigned((15 downto 0 => '0') & imm_offset_in));
+    interrupt_adr_out <= imm_offset_in(1 downto 0);  
+    branch_prediction_out <= branch_prediction_in;
+
 END ARCHITECTURE rtl;

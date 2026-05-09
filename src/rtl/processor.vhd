@@ -571,8 +571,6 @@ EX1_EX2_reg_inst : ENTITY work.ex1_ex2_register
     );
 execute2_stage_inst : ENTITY work.execute2_stage
     PORT MAP (
-        clk => clk,
-        reset => reset,
         COND_BRANCH_IN => ex2_COND_BRANCH,
         JMP_FLAG_SEL_IN => ex2_JMP_FLAG_SEL,
         corrected_ccr_flags_in => ex2_corrected_ccr,
