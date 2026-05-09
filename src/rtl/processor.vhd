@@ -34,6 +34,9 @@ signal ex2_reg_write_address_1, ex2_reg_write_address_2 : reg_idx_t;
 signal mem_reg_write_address_1, mem_reg_write_address_2 : reg_idx_t;
 signal wb_reg_write_address_1, wb_reg_write_address_2 : reg_idx_t;
 signal fetch_instr,decode_instr : STD_LOGIC_VECTOR(31 DOWNTO 0);
+
+-- control signals
+
 BEGIN
 
 forward_unit_inst : ENTITY work.forwarding_unit
@@ -219,59 +222,281 @@ ID_EX1_reg_inst : ENTITY work.id_ex1_register
     port map (
         clk => clk,
         reset => reset,
-        next_pc_in => dec_next_pc,
-        next_pc_out => ex1_next_pc,
+        enable => open,
+
+        LOAD_FLAGS_IN => open,
+        PC_WRITE_EN_IN => open,
+        MEM_WRITE_SEL_IN => open,
+        COND_BRANCH_IN => open,
+        HLT_IN => open,
+        MEMW_IN => open,
+        MEMR_IN => open,
+        UPDATE_FLAGS_IN => open,
+        MEM_ADDRESS_SEL_IN => open,
+        OUTPUT_PORT_EN_IN => open,
+        REG_WB_EN_1_IN => open,
+        REG_WB_EN_2_IN => open,
+        ALU_INPUT_SEL_IN => open,
+        JMP_FLAG_SEL_IN => open,
+        ALU_OP_IN => open,
+
+        branch_prediction_in => open,
+        read_data_1_in => open,
+        read_data_2_in => open,
+        imm_offset_in => open,
         reg_write_address_1_in => dec_reg_write_address_1,
-        reg_write_address_1_out => ex1_reg_write_address_1,
         reg_write_address_2_in => dec_reg_write_address_2,
-        reg_write_address_2_out => ex1_reg_write_address_2
+        next_pc_in => dec_next_pc,
+        read_reg_1_in => open,
+        read_reg_2_in => open,
+
+        LOAD_FLAGS_OUT => open,
+        PC_WRITE_EN_OUT => open,
+        MEM_WRITE_SEL_OUT => open,
+        COND_BRANCH_OUT => open,
+        HLT_OUT => open,
+        MEMW_OUT => open,
+        MEMR_OUT => open,
+        UPDATE_FLAGS_OUT => open,
+        MEM_ADDRESS_SEL_OUT => open,
+        OUTPUT_PORT_EN_OUT => open,
+        REG_WB_EN_1_OUT => open,
+        REG_WB_EN_2_OUT => open,
+        ALU_INPUT_SEL_OUT => open,
+        JMP_FLAG_SEL_OUT => open,
+        ALU_OP_OUT => open,
+
+        branch_prediction_out => open,
+        read_data_1_out => open,
+        read_data_2_out => open,
+        imm_offset_out => open,
+        reg_write_address_1_out => ex1_reg_write_address_1,
+        reg_write_address_2_out => ex1_reg_write_address_2,
+
+        next_pc_out => ex1_next_pc,
+        read_reg_1_out => open,
+        read_reg_2_out => open
     );
 EX1_Stage_inst : ENTITY work.execute1_stage
     PORT MAP (
         clk => clk,
-        reset => reset
+        reset => reset,
+        ALU_OP => open,
+        ALU_INPUT_SEL => open,
+        UPDATE_FLAGS => open,
+
+        imm_offset_in => open,
+        alu_result_1_out => open,
+        alu_result_2_out => open,
+        base_reg_data_out => open,
+        alu_flags_out => open,
+        corrected_ccr_flags_out => open,
+
+        -- input port
+        input_port_data_in => open,
+
+        -- forwarding control
+        RSRC1_SEL => open,
+        RSRC2_SEL => open,
+        FLAG_SRC_SEL => open,
+        -- forwarding data
+        read_data_1_in => open,
+        read_data_2_in => open,
+        fwd_ex2_data_1 => open,
+        fwd_ex2_data_2 => open,
+        fwd_mem_data_1 => open,
+        fwd_mem_data_2 => open,
+        fwd_wb_data_1 => open,
+        fwd_wb_data_2 => open,
+
+        fwd_ex2_flags => open,
+        fwd_mem_flags => open,
+        flag_wb => open,
+
+
+        --debug 
+        CCR_monitor => open 
         
     );
 EX1_EX2_reg_inst : ENTITY work.ex1_ex2_register
     PORT MAP (  
         clk => clk,
         reset => reset,
-        next_pc_in => ex1_next_pc,
-        next_pc_out => ex2_next_pc,
+        FLUSH => open,
+        enable => open,
+
+        LOAD_FLAGS_IN => open, 
+        PC_WRITE_EN_IN => open,
+        MEM_WRITE_SEL_IN => open,
+        COND_BRANCH_IN => open,
+        HLT_IN => open,
+        MEMW_IN => open,
+        MEMR_IN => open,
+        UPDATE_FLAGS_IN => open,
+        MEM_ADDRESS_SEL_IN => open,
+        OUTPUT_PORT_EN_IN => open,
+        REG_WB_EN_1_IN => open,
+        REG_WB_EN_2_IN => open,
+        JMP_FLAG_SEL_IN => open,
+
+        corrected_ccr_flags_in => open,
+        branch_prediction_in => open,
+        alu_flags_in => open,
+        alu_result_1_in => open,
+        alu_result_2_in => open,
+        base_reg_data_in => open,
+        imm_offset_in => open,
         reg_write_address_1_in => ex1_reg_write_address_1,
-        reg_write_address_1_out => ex2_reg_write_address_1,
         reg_write_address_2_in => ex1_reg_write_address_2,
-        reg_write_address_2_out => ex2_reg_write_address_2
+        next_pc_in => ex1_next_pc,
+
+        LOAD_FLAGS_OUT => open,
+        PC_WRITE_EN_OUT => open,
+        MEM_WRITE_SEL_OUT => open,
+        COND_BRANCH_OUT => open,
+        HLT_OUT => open,
+        MEMW_OUT => open,
+        MEMR_OUT => open,
+        UPDATE_FLAGS_OUT => open,
+        MEM_ADDRESS_SEL_OUT => open,
+        OUTPUT_PORT_EN_OUT => open,
+        REG_WB_EN_1_OUT => open,
+        REG_WB_EN_2_OUT => open,
+        JMP_FLAG_SEL_OUT => open,
+
+        corrected_ccr_flags_out => open,
+        branch_prediction_out => open,
+        alu_flags_out => open,
+        alu_result_1_out => open,
+        alu_result_2_out => open,
+        base_reg_data_out => open,
+        imm_offset_out => open,
+        reg_write_address_1_out => ex2_reg_write_address_1,
+        reg_write_address_2_out => ex2_reg_write_address_2,
+        next_pc_out => ex2_next_pc
     );
 execute2_stage_inst : ENTITY work.execute2_stage
     PORT MAP (
         clk => clk,
-        reset => reset
+        reset => reset,
+        COND_BRANCH_IN => open,
+        HLT_IN => open,
+        JMP_FLAG_SEL_IN => open,
+        corrected_ccr_flags_in => open,
+        base_reg_data_in => open,
+        imm_offset_in => open,
+        next_pc_in => open,
+        branch_prediction_in => open,
+    
+        branch_result_out => open,
+        branch_prediction_out => open,
+        correct_pc_value_out => open,
+        mem_adr_out => open,
+        interrupt_adr_out => open,
+        HLT_OUT => open
     );
 EX2_MEM_reg_inst : ENTITY work.ex2_mem_register
     port map (
         clk => clk,
         reset => reset,
-        next_pc_in => ex2_next_pc,
-        next_pc_out => mem_next_pc,
+        enable => open,
+
+        LOAD_FLAGS_IN => open,
+        PC_WRITE_EN_IN => open,
+        MEM_WRITE_SEL_IN => open,
+        MEMW_IN => open,
+        MEMR_IN => open,
+        UPDATE_FLAGS_IN => open,
+        MEM_ADDRESS_SEL_IN => open,
+        OUTPUT_PORT_EN_IN => open,
+        REG_WB_EN_1_IN => open,
+        REG_WB_EN_2_IN => open,
+
+        corrected_ccr_flags_in => open,
+        alu_flags_in => open,
+        alu_result_1_in => open,
+        alu_result_2_in => open,
+        mem_adr_in => open,
+        interrupt_adr_in => open,
         reg_write_address_1_in => ex2_reg_write_address_1,
-        reg_write_address_1_out => mem_reg_write_address_1,
         reg_write_address_2_in => ex2_reg_write_address_2,
-        reg_write_address_2_out => mem_reg_write_address_2
+        next_pc_in => ex2_next_pc,
+
+        LOAD_FLAGS_OUT => open,
+        PC_WRITE_EN_OUT => open,
+        MEM_WRITE_SEL_OUT => open,
+        MEMW_OUT => open,
+        MEMR_OUT => open,
+        UPDATE_FLAGS_OUT => open,
+        MEM_ADDRESS_SEL_OUT => open,
+        OUTPUT_PORT_EN_OUT => open,
+        REG_WB_EN_1_OUT => open,
+        REG_WB_EN_2_OUT => open,
+
+        corrected_ccr_flags_out => open,
+        alu_flags_out => open,
+        alu_result_1_out => open,
+        alu_result_2_out => open,
+        mem_adr_out => open,
+        interrupt_adr_out => open,
+        reg_write_address_1_out => mem_reg_write_address_1,
+        reg_write_address_2_out => mem_reg_write_address_2,
+        next_pc_out => mem_next_pcs
     );
 Memory_Stage_inst : ENTITY work.memory_stage
     PORT MAP (
         clk => clk,
         reset => reset,
-        next_pc_in => mem_next_pc
+        next_pc_in => mem_next_pc,
+        LOAD_FLAGS_IN => open,
+        MEM_WRITE_SEL_IN => open,
+        MEMW_IN => open,
+        MEMR_IN => open,
+        MEM_ADDRESS_SEL_IN => open,
+        HLT => open,
+
+        corrected_ccr_flags_in => open,
+        alu_flags_in => open,
+        alu_result_1_in => open,
+        mem_adr_in => open,
+        interrupt_adr_in => open,
+        next_pc_in => open,
+
+        mem_read_data_in => open,
+
+        flag_wb_out => open,
+        wb_data_1_out => open,
+
+        mem_address => open,
+        mem_write_data_out => open,
+        MEMORY => open,
+        sp_monitor => open
     );
 MEM_WB_reg_inst : ENTITY work.mem_wb_register
     PORT MAP (
         clk => clk,
         reset => reset,
+
+        UPDATE_FLAGS_IN => open,
+        OUTPUT_PORT_EN_IN => open,
+        REG_WB_EN_1_IN => open,
+        REG_WB_EN_2_IN => open,
+
+        flag_wb_in => open,
+        wb_data_1_in => open,
+        wb_data_2_in => open,
         reg_write_address_1_in => mem_reg_write_address_1,
-        reg_write_address_1_out => wb_reg_write_address_1,
         reg_write_address_2_in => mem_reg_write_address_2,
+
+        UPDATE_FLAGS_OUT => open,
+        OUTPUT_PORT_EN_OUT => open,
+        REG_WB_EN_1_OUT => open,
+        REG_WB_EN_2_OUT => open,
+
+        flag_wb_out => open,
+        wb_data_1_out => open,
+        wb_data_2_out => open,
+        reg_write_address_1_out => wb_reg_write_address_1,
         reg_write_address_2_out => wb_reg_write_address_2
     );
 output_port_inst : ENTITY work.output_port

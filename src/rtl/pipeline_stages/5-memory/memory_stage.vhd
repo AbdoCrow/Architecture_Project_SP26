@@ -31,7 +31,7 @@ ENTITY memory_stage IS
         mem_address : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         mem_write_data_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         MEMORY : OUT STD_LOGIC;
-        sp_monior : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
+        sp_monitor : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
         -- ADDED FROM OMAR
         -- PC_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         -- FETCH_MEM_SEL : IN STD_LOGIC;
