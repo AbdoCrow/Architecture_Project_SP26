@@ -54,7 +54,7 @@ branch_prediction_out <= branch_prediction;
 fetch_cond_branch <= selected_instruction(BR_HINT_COND_BIT);
 fetch_uncond_branch <= selected_instruction(BR_HINT_UNCOND_BIT);
 PC_ENABLE <= NOT (FETCH_STALL OR MULTICYCLE_STALL OR FETCH_MEMORY_HAZARD OR ALLOW_HW_INT OR HLT);
-immediate <= "0000000000000000" & selected_instruction(15 DOWNTO 0);
+immediate <= (15 downto 0 => '0') & selected_instruction(15 DOWNTO 0);
 instr_out <= selected_instruction;
 NEXT_PC <= std_logic_vector((unsigned(PC_VALUE) + 1));
 PC_IN <= correct_pc_value WHEN CORRECT_PC = '1' else
@@ -62,7 +62,7 @@ PC_IN <= correct_pc_value WHEN CORRECT_PC = '1' else
          immediate WHEN (fetch_cond_branch = '1' AND branch_prediction = '1') OR fetch_uncond_branch = '1' else
          NEXT_PC ;
 selected_instruction <= generated_instruction WHEN MULTICYCLE_STALL = '1' AND FLUSH = '0' else
-                        OPCODE_INT & "000000000000000000000000001" WHEN ALLOW_HW_INT = '1' AND FLUSH = '0' AND MULTICYCLE_STALL = '0' else
+                        OPCODE_INT & (25 downto 0 => '0') & '1' WHEN ALLOW_HW_INT = '1' AND FLUSH = '0' AND MULTICYCLE_STALL = '0' else
                         fetched_instruction_in WHEN (NOT MULTICYCLE_STALL = '1' AND NOT FLUSH = '1' AND NOT FETCH_MEMORY_HAZARD = '1' AND NOT ALLOW_HW_INT = '1') else    
                         (OTHERS => '0'); -- NOP
 
