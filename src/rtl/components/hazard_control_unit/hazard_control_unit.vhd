@@ -47,7 +47,7 @@ BEGIN
 
     -- PC write hazard: If there is a pending PC write in EX1, EX2, or MEM stage, stall the IF stage to prevent overwriting the PC with an incorrect value
     -- Load-use hazard: If EX1 stage is performing a memory read and the destination register matches either source register in ID stage, stall the pipeline
-    PROCESS(read_reg_1, read_reg_2, ID_EX1_WRITE_ADDRESS, EX1_MEMR, EX1_EX2_WRITE_ADDRESS, EX2_MEMR, EX1_PC_WRITE, EX2_PC_WRITE)
+    PROCESS(read_reg_1, read_reg_2, ID_EX1_WRITE_ADDRESS, EX1_MEMR, EX1_EX2_WRITE_ADDRESS, EX2_MEMR, EX1_PC_WRITE, EX2_PC_WRITE, HARDWARE_INTERRUPT)
     BEGIN
         IF (EX1_MEMR = '1'  AND (ID_EX1_WRITE_ADDRESS = read_reg_1 OR ID_EX1_WRITE_ADDRESS = read_reg_2)) OR 
             (EX2_MEMR = '1' AND (EX1_EX2_WRITE_ADDRESS = read_reg_1 OR EX1_EX2_WRITE_ADDRESS = read_reg_2)) OR 
@@ -78,7 +78,7 @@ BEGIN
         END IF;
     END PROCESS;
     -- Hardware interrupt hazard: If there is a hardware interrupt and there are no pending control hazards or multicycle stalls, allow the interrupt to be serviced
-    PROCESS(HARDWARE_INTERRUPT, EX2_COND_BRANCH, EX1_COND_BRANCH, ID_COND_BRANCH, MULTICYCLE_STALL)
+    PROCESS(HARDWARE_INTERRUPT, EX2_COND_BRANCH, EX1_COND_BRANCH, ID_COND_BRANCH, MULTICYCLE_STALL, MEM_PC_WRITE, EX1_PC_WRITE, EX2_PC_WRITE)
     BEGIN
         IF (HARDWARE_INTERRUPT = '1' 
         AND EX2_COND_BRANCH = '0' 
