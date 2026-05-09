@@ -51,7 +51,8 @@ BEGIN
     BEGIN
         IF (EX1_MEMR = '1'  AND (ID_EX1_WRITE_ADDRESS = read_reg_1 OR ID_EX1_WRITE_ADDRESS = read_reg_2)) OR 
             (EX2_MEMR = '1' AND (EX1_EX2_WRITE_ADDRESS = read_reg_1 OR EX1_EX2_WRITE_ADDRESS = read_reg_2)) OR 
-            (EX1_PC_WRITE = '1' OR EX2_PC_WRITE = '1') THEN
+            (EX1_PC_WRITE = '1' OR EX2_PC_WRITE = '1') or
+            HARDWARE_INTERRUPT = '1' THEN
             STALL <= '1';
         ELSE
             STALL <= '0';
@@ -79,7 +80,15 @@ BEGIN
     -- Hardware interrupt hazard: If there is a hardware interrupt and there are no pending control hazards or multicycle stalls, allow the interrupt to be serviced
     PROCESS(HARDWARE_INTERRUPT, EX2_COND_BRANCH, EX1_COND_BRANCH, ID_COND_BRANCH, MULTICYCLE_STALL)
     BEGIN
-        IF (HARDWARE_INTERRUPT = '1' AND EX2_COND_BRANCH = '0' AND EX1_COND_BRANCH = '0' AND ID_COND_BRANCH = '0' AND MULTICYCLE_STALL = '0') THEN
+        IF (HARDWARE_INTERRUPT = '1' 
+        AND EX2_COND_BRANCH = '0' 
+        AND EX1_COND_BRANCH = '0' 
+        AND ID_COND_BRANCH = '0' 
+        AND MULTICYCLE_STALL = '0'
+        AND MEM_PC_WRITE = '0'
+        AND EX1_PC_WRITE = '0'
+        AND EX2_PC_WRITE = '0'
+        ) THEN
             ALLOW_HW_INT <= '1';
         ELSE
             ALLOW_HW_INT <= '0';
