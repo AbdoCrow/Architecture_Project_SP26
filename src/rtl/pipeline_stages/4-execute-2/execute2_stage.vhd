@@ -8,7 +8,6 @@ ENTITY execute2_stage IS
         reset : IN STD_LOGIC;
 
         COND_BRANCH_IN : IN STD_LOGIC;
-        HLT_IN : IN STD_LOGIC;
         JMP_FLAG_SEL_IN : IN jmp_flag_sel_t;
 
 
@@ -22,8 +21,7 @@ ENTITY execute2_stage IS
         branch_prediction_out : OUT STD_LOGIC;
         correct_pc_value_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         mem_adr_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        interrupt_adr_out : OUT int_idx_t;
-        HLT_OUT : OUT STD_LOGIC
+        interrupt_adr_out : OUT int_idx_t
     );
 END ENTITY execute2_stage;
 
@@ -31,5 +29,4 @@ ARCHITECTURE rtl OF execute2_stage IS
 BEGIN
  
     -- control signals that will path through should not be registered here
-    -- HLT resolves here so it shall be output from this stage,
 END ARCHITECTURE rtl;
