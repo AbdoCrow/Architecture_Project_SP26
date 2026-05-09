@@ -46,7 +46,7 @@ flag_wb_out <= mem_read_data_in(2 DOWNTO 0) when LOAD_FLAGS_IN = '1' else alu_fl
 mem_address <= mem_adr_in when MEM_ADDRESS_SEL_IN = MEM_ADDRESS_CALC else
                (29 downto 0 => '0') & interrupt_adr_in when MEM_ADDRESS_SEL_IN = MEM_ADDRESS_INT_VECTOR else
                 SP_VALUE when MEM_ADDRESS_SEL_IN = MEM_ADDRESS_SP_PUSH else
-                SP_PLUS_1_VALUE; 
+                SP_PLUS_1_VALUE; -- I think this is wrong, should be SP_VALUE probably
 mem_write_data_out <= alu_result_1_in WHEN MEM_WRITE_SEL_IN = MEM_WRITE_ALU_DATA ELSE
                      next_pc_in WHEN MEM_WRITE_SEL_IN = MEM_WRITE_PC_DATA ELSE
                      (28 downto 0 => '0') & corrected_ccr_flags_in;
