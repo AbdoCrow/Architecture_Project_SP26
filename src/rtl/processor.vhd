@@ -36,13 +36,68 @@ signal wb_reg_write_address_1, wb_reg_write_address_2 : reg_idx_t;
 signal fetch_instr,decode_instr : STD_LOGIC_VECTOR(31 DOWNTO 0);
 BEGIN
 
--- forward_unit_inst : ENTITY work.forwarding_unit
---     PORT MAP (
+forward_unit_inst : ENTITY work.forwarding_unit
+    PORT MAP (
+        read_reg_1 => open,
+        read_reg_2 => open,
+        
+        EX1_UPDATE_FLAGS => open,
+        EX2_UPDATE_FLAGS => open,
+        MEM_UPDATE_FLAGS => open,
 
---     );
--- hazard_control_unit_inst : ENTITY work.hazard_control_unit
---     PORT MAP (
---     );
+        EX1_REG_WRITE_EN_1 => open,
+        EX1_REG_WRITE_EN_2 => open,
+        EX1_WRITE_ADDRESS_1 => open,
+        EX1_WRITE_ADDRESS_2 => open,
+        EX2_REG_WRITE_EN_1 => open,
+        EX2_REG_WRITE_EN_2 => open,
+        EX2_WRITE_ADDRESS_1 => open,
+        EX2_WRITE_ADDRESS_2 => open,
+        MEM_REG_WRITE_EN_1 => open,
+        MEM_REG_WRITE_EN_2 => open,
+        MEM_WRITE_ADDRESS_1 => open,
+        MEM_WRITE_ADDRESS_2 => open,
+
+        FLAG_SRC_SEL => open,
+        RSRC1_SEL => open,
+        RSRC2_SEL => open
+    );
+hazard_control_unit_inst : ENTITY work.hazard_control_unit
+    PORT MAP (
+        --Structural hazard signals
+        MEMORY => open,
+        FETCH_MEMORY_HAZARD => open,
+
+        -- load use hazard signals
+        read_reg_1 => open,
+        read_reg_2 => open,
+        ID_EX1_WRITE_ADDRESS => open,
+        EX1_MEMR => open,
+        EX1_EX2_WRITE_ADDRESS => open,
+        EX2_MEMR => open,
+
+        -- control hazard signals
+        branch_prediction => open,
+        branch_result => open,
+        CORRECT_PC => open,
+
+        -- pc write hazard signals
+        EX1_PC_WRITE => open,
+        EX2_PC_WRITE => open,
+        MEM_PC_WRITE => open,
+
+
+        --interrupt hazard signals
+        EX2_COND_BRANCH => open,
+        EX1_COND_BRANCH => open,
+        ID_COND_BRANCH => open,
+
+        MULTICYCLE_STALL => open,
+        HARDWARE_INTERRUPT => open,
+        ALLOW_HW_INT => open,
+        STALL => open,
+        FLUSH => open
+    );
 Interrupt_handler_inst : ENTITY work.interrupt_handler
     PORT MAP (
         clk => clk,
@@ -96,16 +151,69 @@ IF_ID_reg_inst : ENTITY work.if_id_register
         next_pc_in => fetch_next_pc,
         next_pc_out => dec_next_pc,
         instr_in => fetch_instr,
-        instr_out => decode_instr
-        
+        instr_out => decode_instr,
+        enable => open,
+        branch_prediction_in=> open,
+        branch_prediction_out => open
     );
 decode_stage_inst : ENTITY work.decode_stage
     PORT MAP (
         clk => clk,
         reset => reset,
+  
+        -- Inputs from fetch stage
+        instr_in => decode_instr, 
+        -- Inputs from writeback stage
+        wb_addr_1_in => open,
+        wb_data_1_in => open,
+        REG_WB_EN_1_IN => open,
+        wb_addr_2_in => open,
+        wb_data_2_in => open,
+        REG_WB_EN_2_IN => open,
+
+        -- Inputs from Hazard unit
+        STALL => open,
+        FLUSH => open,
+        -- Control signals to execute stage
+        LOAD_FLAGS => open,
+        PC_WRITE_EN => open,
+        MEM_WRITE_SEL => open,
+        COND_BRANCH => open,
+        HLT => open,
+        MEMW => open,
+        MEMR => open,
+        UPDATE_FLAGS => open,
+        MEM_ADDRESS_SEL => open,
+        OUTPUT_PORT_EN => open,
+
+        REG_WB_EN_1 => open,
+        REG_WB_EN_2 => open,
+        ALU_INPUT_SEL => open,
+        JMP_FLAG_SEL=> open,
+        ALU_OP => open,
+        -- Data signals to execute stage
+        read_data_1_out => open,
+        read_data_2_out => open,
+        imm_offset_out => open,
         reg_write_address_1_out => dec_reg_write_address_1,
         reg_write_address_2_out => dec_reg_write_address_2,
-        instr_in => decode_instr
+        read_reg_1_out => open,
+        read_reg_2_out => open,
+
+        -- Outputs to other Stages
+        MULTICYCLE_SEL => open,
+        MULTICYCLE_STALL => open,
+        INT_TARGERT_ADDR => open,
+        ID_COND_BRANCH => open,
+        -- monitoring register values for debugging
+        reg0_out => open,
+        reg1_out => open,
+        reg2_out => open,
+        reg3_out => open,
+        reg4_out => open,
+        reg5_out => open,
+        reg6_out => open,
+        reg7_out => open
     );
 ID_EX1_reg_inst : ENTITY work.id_ex1_register 
     port map (

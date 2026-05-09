@@ -16,11 +16,11 @@ BEGIN
     BEGIN
         CASE MULTICYCLE_SEL IS
             WHEN MULTICYCLE_RET_STEP =>
-                GENERATED_INSTRUCTION <= OPCODE_RET & (27 downto 0 => '0'); -- OPCODE_RET with rest of bits 0
+                GENERATED_INSTRUCTION <= OPCODE_RET & (26 downto 0 => '0'); -- OPCODE_RET with rest of bits 0
             WHEN MULTICYCLE_INT2 => 
-                GENERATED_INSTRUCTION <= OPCODE_INT2 & (27 downto 2 => '0') & INT_TARGET_INDEX; -- OPCODE_INT2 + int_idx in bits [1:0]
+                GENERATED_INSTRUCTION <= OPCODE_INT2 & (26 downto 2 => '0') & INT_TARGET_INDEX; -- OPCODE_INT2 + int_idx in bits [1:0]
             WHEN MULTICYCLE_INT3 => 
-                GENERATED_INSTRUCTION <= OPCODE_INT3 & (27 downto 2 => '0') & INT_TARGET_INDEX; -- OPCODE_INT3 + int_idx in bits [1:0]
+                GENERATED_INSTRUCTION <= OPCODE_INT3 & (26 downto 2 => '0') & INT_TARGET_INDEX; -- OPCODE_INT3 + int_idx in bits [1:0]
             WHEN OTHERS =>-- No multicycle operation; output is don't care (set to NOP)
                 GENERATED_INSTRUCTION <= (OTHERS => '0');
         END CASE;
