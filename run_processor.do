@@ -114,7 +114,7 @@ add wave -noupdate -label "EX2 next_pc"  -radix hex  sim:/processor/ex2_next_pc
 
 add wave -noupdate -label "MEM next_pc"  -radix hex  sim:/processor/mem_next_pc
 # add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_address
-# add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_addr
+add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_addr
 
 add wave -noupdate -label "STALL"          sim:/processor/haz_STALL
 add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
@@ -124,15 +124,15 @@ add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_S
 
 add wave -radix hex  -r sim:/processor/hazard_control_unit_inst/*
 # add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
-# add wave -radix hex  -r sim:/processor/decode_stage_inst/*
+add wave -radix hex  -r sim:/processor/decode_stage_inst/*
 # add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
 # add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
-# add wave -radix hex  -r sim:/processor/memory_stage_inst/*
+add wave -radix hex  -r sim:/processor/memory_stage_inst/*
 add wave -radix hex  -r sim:/processor/memory_inst/memory_array
 # add wave -radix hex  -r sim:/processor/interrupt_handler_inst/*
-add wave -radix hex  -r sim:/processor/IF_ID_reg_inst/*
-add wave -radix hex  -r sim:/processor/ID_EX1_reg_inst/*
-add wave -radix hex  -r sim:/processor/EX1_EX2_reg_inst/*
+# add wave -radix hex  -r sim:/processor/IF_ID_reg_inst/*
+# add wave -radix hex  -r sim:/processor/ID_EX1_reg_inst/*
+# add wave -radix hex  -r sim:/processor/EX1_EX2_reg_inst/*
 
 
 

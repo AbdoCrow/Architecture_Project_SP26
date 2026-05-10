@@ -26,6 +26,9 @@ run $CLOCK_PERIOD
 force -freeze sim:/processor/intr_in 0 0
 force -freeze sim:/processor/in_port 16#00000005 0
 run $RUN_TIME
+run $CLOCK_PERIOD
+run $CLOCK_PERIOD
+run $CLOCK_PERIOD
 force -freeze sim:/processor/intr_in 1 0
 run $CLOCK_PERIOD
 force -freeze sim:/processor/intr_in 0 0

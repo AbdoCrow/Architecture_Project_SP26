@@ -271,9 +271,10 @@ hazard_control_unit_inst : ENTITY work.hazard_control_unit
         read_reg_2            => dec_read_reg_2,
         ID_EX1_WRITE_ADDRESS  => ex1_reg_write_address_1,
         EX1_MEMR              => ex1_MEMR,
+        ID_EX1_WRITE_ENABLE   => ex1_REG_WB_EN_1,
         EX1_EX2_WRITE_ADDRESS => ex2_reg_write_address_1,
         EX2_MEMR              => ex2_MEMR,
-
+        EX1_EX2_WRITE_ENABLE  => ex2_REG_WB_EN_1,
         -- control hazard signals
         branch_prediction     => ex2_branch_pred_out,
         branch_result         => ex2_branch_result,

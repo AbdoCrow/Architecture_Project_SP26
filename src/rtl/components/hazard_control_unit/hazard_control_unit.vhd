@@ -12,8 +12,10 @@ ENTITY hazard_control_unit IS
         read_reg_1 : IN reg_idx_t;
         read_reg_2 : IN reg_idx_t;
         ID_EX1_WRITE_ADDRESS : IN reg_idx_t;
+        ID_EX1_WRITE_ENABLE : IN STD_LOGIC;
         EX1_MEMR : IN STD_LOGIC;
         EX1_EX2_WRITE_ADDRESS : IN reg_idx_t;
+        EX1_EX2_WRITE_ENABLE : IN STD_LOGIC;
         EX2_MEMR : IN STD_LOGIC;
 
         -- control hazard signals
@@ -53,19 +55,19 @@ BEGIN
     DECODE_STALL <= DECODESTALL;
     -- PC write hazard: If there is a pending PC write in EX1, EX2, or MEM stage, stall the IF stage to prevent overwriting the PC with an incorrect value
     -- Load-use hazard: If EX1 stage is performing a memory read and the destination register matches either source register in ID stage, stall the pipeline
-    PROCESS(read_reg_1, read_reg_2, ID_EX1_WRITE_ADDRESS, EX1_MEMR, EX1_EX2_WRITE_ADDRESS, EX2_MEMR)
+    PROCESS(read_reg_1, read_reg_2, ID_EX1_WRITE_ADDRESS, ID_EX1_WRITE_ENABLE, EX1_MEMR, EX1_EX2_WRITE_ADDRESS, EX1_EX2_WRITE_ENABLE, EX2_MEMR)
     BEGIN
-        IF (EX1_MEMR = '1'  AND (ID_EX1_WRITE_ADDRESS = read_reg_1 OR ID_EX1_WRITE_ADDRESS = read_reg_2)) OR 
-            (EX2_MEMR = '1' AND (EX1_EX2_WRITE_ADDRESS = read_reg_1 OR EX1_EX2_WRITE_ADDRESS = read_reg_2))
+        IF (EX1_MEMR = '1'  AND ID_EX1_WRITE_ENABLE = '1' AND (ID_EX1_WRITE_ADDRESS = read_reg_1 OR ID_EX1_WRITE_ADDRESS = read_reg_2)) OR 
+            (EX2_MEMR = '1' AND EX1_EX2_WRITE_ENABLE = '1' AND (EX1_EX2_WRITE_ADDRESS = read_reg_1 OR EX1_EX2_WRITE_ADDRESS = read_reg_2))
          THEN
             DECODESTALL <= '1';
         ELSE
             DECODESTALL <= '0';
         END IF;
     END PROCESS;
-    PROCESS(EX1_PC_WRITE, EX2_PC_WRITE, DEC_PC_WRITE, HARDWARE_INTERRUPT)
+    PROCESS(EX1_PC_WRITE, EX2_PC_WRITE, DEC_PC_WRITE, HARDWARE_INTERRUPT, MEM_PC_WRITE)
     BEGIN
-        IF (EX1_PC_WRITE = '1' OR EX2_PC_WRITE = '1' OR DEC_PC_WRITE = '1') OR
+        IF (EX1_PC_WRITE = '1' OR EX2_PC_WRITE = '1' OR DEC_PC_WRITE = '1' OR MEM_PC_WRITE = '1') OR
             HARDWARE_INTERRUPT = '1' THEN
             FETCHSTALL <= '1';
         ELSE

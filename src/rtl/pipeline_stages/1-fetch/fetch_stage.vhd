@@ -54,7 +54,7 @@ next_pc_out <= NEXT_PC;
 branch_prediction_out <= branch_prediction;
 fetch_cond_branch <= selected_instruction(BR_HINT_COND_BIT);
 fetch_uncond_branch <= selected_instruction(BR_HINT_UNCOND_BIT);
-PC_ENABLE <= NOT (FETCH_STALL OR MULTICYCLE_STALL OR (FETCH_MEMORY_HAZARD AND NOT PC_WRITE_ENABLE) OR ALLOW_HW_INT OR HLT) OR CORRECT_PC;
+PC_ENABLE <= NOT (FETCH_STALL OR MULTICYCLE_STALL OR FETCH_MEMORY_HAZARD  OR ALLOW_HW_INT OR HLT) OR CORRECT_PC OR PC_WRITE_ENABLE;
 immediate <= (15 downto 0 => '0') & selected_instruction(15 DOWNTO 0);
 instr_out <= selected_instruction;
 NEXT_PC <= std_logic_vector((unsigned(PC_VALUE) + 1));
