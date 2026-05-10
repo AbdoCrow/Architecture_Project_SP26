@@ -33,7 +33,7 @@ ENTITY hazard_control_unit IS
         EX1_COND_BRANCH : IN STD_LOGIC;
         ID_COND_BRANCH : IN STD_LOGIC;
         IF_COND_BRANCH : IN STD_LOGIC;
-
+        IF_UNCOND_BRANCH : IN STD_LOGIC;
         MULTICYCLE_STALL : IN STD_LOGIC;
         HARDWARE_INTERRUPT : IN STD_LOGIC;
         ALLOW_HW_INT : OUT STD_LOGIC;
@@ -55,10 +55,11 @@ BEGIN
     DECODE_STALL <= DECODESTALL;
     -- PC write hazard: If there is a pending PC write in EX1, EX2, or MEM stage, stall the IF stage to prevent overwriting the PC with an incorrect value
     -- Load-use hazard: If EX1 stage is performing a memory read and the destination register matches either source register in ID stage, stall the pipeline
-    PROCESS(read_reg_1, read_reg_2, ID_EX1_WRITE_ADDRESS, ID_EX1_WRITE_ENABLE, EX1_MEMR, EX1_EX2_WRITE_ADDRESS, EX1_EX2_WRITE_ENABLE, EX2_MEMR)
+    PROCESS(read_reg_1, read_reg_2, ID_EX1_WRITE_ADDRESS, ID_EX1_WRITE_ENABLE, EX1_MEMR, EX1_EX2_WRITE_ADDRESS, EX1_EX2_WRITE_ENABLE, EX2_MEMR, EX1_PC_WRITE)
     BEGIN
         IF (EX1_MEMR = '1'  AND ID_EX1_WRITE_ENABLE = '1' AND (ID_EX1_WRITE_ADDRESS = read_reg_1 OR ID_EX1_WRITE_ADDRESS = read_reg_2)) OR 
-            (EX2_MEMR = '1' AND EX1_EX2_WRITE_ENABLE = '1' AND (EX1_EX2_WRITE_ADDRESS = read_reg_1 OR EX1_EX2_WRITE_ADDRESS = read_reg_2))
+            (EX2_MEMR = '1' AND EX1_EX2_WRITE_ENABLE = '1' AND (EX1_EX2_WRITE_ADDRESS = read_reg_1 OR EX1_EX2_WRITE_ADDRESS = read_reg_2)) or
+            EX1_PC_WRITE = '1'
          THEN
             DECODESTALL <= '1';
         ELSE
@@ -93,7 +94,7 @@ BEGIN
         END IF;
     END PROCESS;
     -- Hardware interrupt hazard: If there is a hardware interrupt and there are no pending control hazards or multicycle stalls, allow the interrupt to be serviced
-    PROCESS(HARDWARE_INTERRUPT, EX2_COND_BRANCH, EX1_COND_BRANCH, ID_COND_BRANCH, MULTICYCLE_STALL, MEM_PC_WRITE, EX1_PC_WRITE, EX2_PC_WRITE, IF_COND_BRANCH, DEC_PC_WRITE)
+    PROCESS(HARDWARE_INTERRUPT, EX2_COND_BRANCH, EX1_COND_BRANCH, ID_COND_BRANCH, MULTICYCLE_STALL, MEM_PC_WRITE, EX1_PC_WRITE, EX2_PC_WRITE, IF_COND_BRANCH, DEC_PC_WRITE, IF_UNCOND_BRANCH)
     BEGIN
         IF (HARDWARE_INTERRUPT = '1' 
         AND EX2_COND_BRANCH = '0' 
@@ -105,6 +106,7 @@ BEGIN
         AND EX2_PC_WRITE = '0'
         AND DEC_PC_WRITE = '0'
         AND IF_COND_BRANCH = '0'
+        AND IF_UNCOND_BRANCH = '0'
         ) THEN
             ALLOW_HW_INT <= '1';
         ELSE

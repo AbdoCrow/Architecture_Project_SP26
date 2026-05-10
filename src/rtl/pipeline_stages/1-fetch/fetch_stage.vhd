@@ -32,7 +32,8 @@ ENTITY fetch_stage IS
         next_pc_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         instr_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         branch_prediction_out : OUT STD_LOGIC;  
-        IF_COND_BRANCH : OUT STD_LOGIC
+        IF_COND_BRANCH : OUT STD_LOGIC;
+        IF_UNCOND_BRANCH : OUT STD_LOGIC
     );
 END ENTITY fetch_stage;
 
@@ -67,6 +68,7 @@ selected_instruction <= generated_instruction WHEN MULTICYCLE_STALL = '1' AND FL
                         fetched_instruction_in WHEN (NOT MULTICYCLE_STALL = '1' AND NOT FLUSH = '1' AND NOT FETCH_MEMORY_HAZARD = '1' AND NOT ALLOW_HW_INT = '1') else    
                         (OTHERS => '0'); -- NOP
 IF_COND_BRANCH <= fetch_cond_branch;
+IF_UNCOND_BRANCH <= fetch_uncond_branch;
 pc_inst : entity work.pc_reg
     PORT MAP (
         clk => clk,

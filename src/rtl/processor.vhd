@@ -34,6 +34,7 @@ ARCHITECTURE rtl OF processor IS
     signal fetch_pc_out    : STD_LOGIC_VECTOR(31 DOWNTO 0);
     signal fetch_branch_prediction : STD_LOGIC;
     signal fetch_cond_branch : STD_LOGIC;
+    signal fetch_uncond_branch : STD_LOGIC;
  
     -- =========================================================
     -- IF/ID -> DECODE stage
@@ -290,6 +291,7 @@ hazard_control_unit_inst : ENTITY work.hazard_control_unit
         EX1_COND_BRANCH       => ex1_COND_BRANCH,
         ID_COND_BRANCH        => dec_ID_COND_BRANCH,
         IF_COND_BRANCH        => fetch_cond_branch,
+        IF_UNCOND_BRANCH      => fetch_uncond_branch,
 
         MULTICYCLE_STALL      => dec_MULTICYCLE_STALL,
         HARDWARE_INTERRUPT    => int_INT_REQUEST,
@@ -347,7 +349,8 @@ fetch_stage_inst : ENTITY work.fetch_stage
         ALLOW_HW_INT => haz_ALLOW_HW_INT,
         pc_out   => fetch_pc_out,
         branch_prediction_out  => fetch_branch_prediction,
-        if_cond_branch => fetch_cond_branch
+        if_cond_branch => fetch_cond_branch,
+        if_uncond_branch => fetch_uncond_branch
     );
 
     IF_ID_enable <= NOT (haz_DECODE_STALL OR ex2_HLT) OR haz_ALLOW_HW_INT;
