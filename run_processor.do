@@ -11,36 +11,10 @@
 set ASM_FILE  "testcases/test2.asm"     ;# path to your .asm source file
 set RUN_TIME  "500 ns"           ;# simulation duration after reset release
 set CLOCK_PERIOD "50 ns"      ;# clock period (for stimulus timing)
-
-# Memory hierarchy path — find this with:
-#   find /processor -name mem
-# or check your VHDL for the entity that instantiates 'memory'.
-# Common candidates are shown; uncomment the one that matches.
-set MEM_PATH  "/processor/memory_inst"
-# set MEM_PATH  "/processor/id_memory_inst/mem"
-# set MEM_PATH  "/processor/fetch_stage_inst/memory_inst/mem"
-
-
-# =============================================================================
-# STEP 1 — Assemble the source file
-# =============================================================================
 set MEM_FILE  [file rootname $ASM_FILE].mem
 
-# echo ""
-# echo "============================================================"
-# echo " Assembling: $ASM_FILE  ->  $MEM_FILE"
-# echo "============================================================"
-
-# set assemble_rc [catch {exec python3 assembler.py $ASM_FILE $MEM_FILE} assemble_out]
-# echo $assemble_out
-# if {$assemble_rc != 0} {
-#     echo "ERROR: Assembly failed. Fix the errors above and re-run."
-#     return
-# }
-
-
 # =============================================================================
-# STEP 2 — Compile design sources
+# STEP 1 — Compile design sources
 # =============================================================================
 echo ""
 echo "============================================================"
@@ -50,7 +24,7 @@ echo "============================================================"
 do compile_processor.do
 
 # =============================================================================
-# STEP 3 — Start simulation
+# STEP 2 — Start simulation
 # =============================================================================
 echo ""
 echo "============================================================"
@@ -61,7 +35,7 @@ vsim -t ns work.processor
 
 
 # =============================================================================
-# STEP 4 — Load assembled memory image
+# STEP 3 — Load assembled memory image
 # =============================================================================
 echo " Loading memory image: $MEM_FILE"
 echo " Into: $MEM_PATH"
@@ -71,7 +45,7 @@ mem load -infile $MEM_FILE -format mti $MEM_PATH
 
 
 # =============================================================================
-# STEP 5 — Wave window setup
+# STEP 4 — Wave window setup
 # =============================================================================
 quietly WaveActivateNextPane {} 0
 
@@ -114,20 +88,20 @@ add wave -noupdate -label "EX2 next_pc"  -radix hex  sim:/processor/ex2_next_pc
 
 add wave -noupdate -label "MEM next_pc"  -radix hex  sim:/processor/mem_next_pc
 # add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_address
-add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_addr
+# add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_addr
 
 add wave -noupdate -label "STALL"          sim:/processor/haz_STALL
 add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
-add wave -noupdate -label "RSRC1_SEL" -radix unsigned  sim:/processor/fwd_RSRC1_SEL
-add wave -noupdate -label "RSRC2_SEL" -radix unsigned  sim:/processor/fwd_RSRC2_SEL
-add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
+# add wave -noupdate -label "RSRC1_SEL" -radix unsigned  sim:/processor/fwd_RSRC1_SEL
+# add wave -noupdate -label "RSRC2_SEL" -radix unsigned  sim:/processor/fwd_RSRC2_SEL
+# add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
 
-add wave -radix hex  -r sim:/processor/hazard_control_unit_inst/*
+# add wave -radix hex  -r sim:/processor/hazard_control_unit_inst/*
 # add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
-add wave -radix hex  -r sim:/processor/decode_stage_inst/*
+# add wave -radix hex  -r sim:/processor/decode_stage_inst/*
 # add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
 # add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
-add wave -radix hex  -r sim:/processor/memory_stage_inst/*
+# add wave -radix hex  -r sim:/processor/memory_stage_inst/*
 add wave -radix hex  -r sim:/processor/memory_inst/memory_array
 # add wave -radix hex  -r sim:/processor/interrupt_handler_inst/*
 # add wave -radix hex  -r sim:/processor/IF_ID_reg_inst/*
@@ -151,7 +125,7 @@ WaveRestoreZoom {0 ns} {200 ns}
 
 
 # =============================================================================
-# STEP 6 — Reset sequence
+# STEP 5 — Reset sequence
 # =============================================================================
 echo ""
 echo "============================================================"
@@ -189,7 +163,7 @@ do Test2.do
 # do Memory.do
 # run $RUN_TIME
 # =============================================================================
-# STEP 7 — Fit waveform window
+# STEP 6 — Fit waveform window
 # =============================================================================
 # wave zoom full
 
