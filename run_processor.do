@@ -83,7 +83,7 @@ add wave -noupdate -label "INTR"   -color "Orange"       sim:/processor/intr_in
 # ---- Ports ------------------------------------------------------------------
 add wave -noupdate -label "IN_PORT"  -radix hex  sim:/processor/in_port
 add wave -noupdate -label "OUT_PORT" -radix hex  sim:/processor/out_port
-
+add wave -noupdate -label "HLT" -radix binary  sim:/processor/ex2_HLT
 # ---- Programmer-visible state -----------------------------------------------
 add wave -noupdate -label "PC"   -radix hex  sim:/processor/pc_monitor
 add wave -noupdate -label "SP"   -radix hex  sim:/processor/sp_monitor
@@ -123,12 +123,15 @@ add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
 # add wave -noupdate -label "RSRC2_SEL" -radix unsigned  sim:/processor/fwd_RSRC2_SEL
 # add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
 
-add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
+# add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
 # add wave -radix hex  -r sim:/processor/decode_stage_inst/*
 # add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
-add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
+# add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
 # add wave -radix hex  -r sim:/processor/memory_stage_inst/*
 # add wave -radix hex  -r sim:/processor/memory_inst/*
+
+add wave -radix hex  -r sim:/processor/ex1_HLT
+add wave -radix hex  -r sim:/processor/dec_HLT
 
 
 
@@ -179,7 +182,7 @@ do Test2.do
 # =============================================================================
 # STEP 7 — Fit waveform window
 # =============================================================================
-wave zoom full
+# wave zoom full
 
 echo ""
 echo "============================================================"

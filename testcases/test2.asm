@@ -69,14 +69,14 @@ JMP 700          #jump taken
 ADD R7, R0, R1   #R7=85
 POP R6           #R6=300, SP=FFF, try hardware interrupt here
 Call 300         #SP=FFE, M[FFF]=next PC
-INC R6	         #R6=401, this statement shouldn't be executed till call returns, C--> 0, N-->0, Z-->0
+INC R6	         #R6=601, this statement shouldn't be executed till call returns, C--> 0, N-->0, Z-->0
 NOP
 NOP
 HLT
 
 .ORG 300
-ADD R6,R3,R6     #R6=400
-ADD R1,R1,R2     #R1=D0, C->0, N=0, Z=0
+ADD R6,R3,R6     #R6=600
+ADD R1,R1,R2     #R1=B5, C->0, N=0, Z=0
 RET
 ADD R1, R1, R1   #this should not be executed - try hardware interrupt when this is at fetch
 

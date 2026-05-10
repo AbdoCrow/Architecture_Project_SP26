@@ -61,7 +61,9 @@ ENTITY ex1_ex2_register IS
 END ENTITY ex1_ex2_register;
 
 ARCHITECTURE rtl OF ex1_ex2_register IS
+Signal HLT_reg : STD_LOGIC := '0';
 BEGIN
+HLT_OUT <= HLT_reg;
     process (clk, reset)
     BEGIN
         if reset = '1' then
@@ -70,7 +72,7 @@ BEGIN
             PC_WRITE_EN_OUT <= '0';
             MEM_WRITE_SEL_OUT <= (OTHERS => '0');
             COND_BRANCH_OUT <= '0';
-            HLT_OUT <= '0';
+            HLT_reg <= '0';
             MEMW_OUT <= '0';
             MEMR_OUT <= '0';
             UPDATE_FLAGS_OUT <= '0';
@@ -90,6 +92,8 @@ BEGIN
             reg_write_address_1_out <= (OTHERS => '0');
             reg_write_address_2_out <= (OTHERS => '0');
             next_pc_out <= (OTHERS => '0');
+        elsif (HLT_reg = '1') then
+            HLT_reg <= '1'; -- Hold HLT state until reset
         elsif rising_edge(clk) then
             -- Transfer inputs to outputs
             if FLUSH = '1' then
@@ -98,7 +102,7 @@ BEGIN
                 PC_WRITE_EN_OUT <= '0';
                 MEM_WRITE_SEL_OUT <= (OTHERS => '0');
                 COND_BRANCH_OUT <= '0';
-                HLT_OUT <= '0';
+                HLT_reg <= '0';
                 MEMW_OUT <= '0';
                 MEMR_OUT <= '0';
                 UPDATE_FLAGS_OUT <= '0';
@@ -123,7 +127,7 @@ BEGIN
                 PC_WRITE_EN_OUT <= PC_WRITE_EN_IN;
                 MEM_WRITE_SEL_OUT <= MEM_WRITE_SEL_IN;
                 COND_BRANCH_OUT <= COND_BRANCH_IN;
-                HLT_OUT <= HLT_IN;
+                HLT_reg <= HLT_IN;
                 MEMW_OUT <= MEMW_IN;
                 MEMR_OUT <= MEMR_IN;
                 UPDATE_FLAGS_OUT <= UPDATE_FLAGS_IN;

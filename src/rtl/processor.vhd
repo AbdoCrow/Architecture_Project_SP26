@@ -322,7 +322,7 @@ fetch_stage_inst : ENTITY work.fetch_stage
         next_pc_out              => fetch_next_pc,
         instr_out                => fetch_instr,
 
-        PC_WRITE_ENABLE          => ex2_PC_WRITE_EN,
+        PC_WRITE_ENABLE          => mem_PC_WRITE_EN,
         FETCH_STALL              => haz_STALL,
         MULTICYCLE_STALL         => dec_MULTICYCLE_STALL,
         MULTICYCLE_SEL           => dec_MULTICYCLE_SEL,
@@ -417,7 +417,7 @@ decode_stage_inst : ENTITY work.decode_stage
     );
 
     ID_EX1_enable <= NOT (ex2_HLT);
-    ID_EX1_reg_inst : ENTITY work.id_ex1_register 
+ID_EX1_reg_inst : ENTITY work.id_ex1_register 
     port map (
         clk=> clk,
         reset=> reset,

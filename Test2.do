@@ -20,5 +20,9 @@ force -freeze sim:/processor/in_port 16#00000075 0
 run $RUN_TIME
 force -freeze sim:/processor/in_port 16#00000700 0
 run $RUN_TIME
+run $RUN_TIME
+run $RUN_TIME
+wave zoom range {3000 ns} {6000 ns}
+
 
 
