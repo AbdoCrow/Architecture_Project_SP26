@@ -8,7 +8,7 @@
 .ORG 0           #this means the the following line would be  at address  0 , and this is the reset address
 10
 
-.ORG 2           #this hw interrupt handler
+.ORG 1           #this hw interrupt handler
 900
 
 .ORG 900 #this is hw int

@@ -72,6 +72,7 @@ ARCHITECTURE rtl OF processor IS
     signal dec_reg_write_address_2 : reg_idx_t;
     signal dec_read_reg_1       : reg_idx_t;
     signal dec_read_reg_2       : reg_idx_t;
+    signal dec_input_port        : STD_LOGIC_VECTOR(31 DOWNTO 0);
  
     -- =========================================================
     -- ID/EX1 -> EX1 stage
@@ -100,6 +101,7 @@ ARCHITECTURE rtl OF processor IS
     signal ex1_next_pc          : STD_LOGIC_VECTOR(31 DOWNTO 0);
     signal ex1_read_reg_1       : reg_idx_t;
     signal ex1_read_reg_2       : reg_idx_t;
+    signal ex1_input_port        : STD_LOGIC_VECTOR(31 DOWNTO 0);
  
     -- EX1 stage outputs (results)
     signal ex1_alu_result_1     : STD_LOGIC_VECTOR(31 DOWNTO 0);
@@ -353,7 +355,9 @@ IF_ID_reg_inst : ENTITY work.if_id_register
         instr_out => decode_instr,
         enable => IF_ID_enable,
         branch_prediction_in  => fetch_branch_prediction,
-        branch_prediction_out => dec_branch_prediction
+        branch_prediction_out => dec_branch_prediction,
+        input_port_in => in_port,
+        input_port_out => dec_input_port
     );
 decode_stage_inst : ENTITY work.decode_stage
     PORT MAP (
@@ -437,6 +441,7 @@ ID_EX1_reg_inst : ENTITY work.id_ex1_register
         ALU_INPUT_SEL_IN  => dec_ALU_INPUT_SEL,
         JMP_FLAG_SEL_IN => dec_JMP_FLAG_SEL,
         ALU_OP_IN => dec_ALU_OP,
+        input_port_in => dec_input_port,
 
         branch_prediction_in => dec_branch_prediction,
         read_data_1_in => dec_read_data_1,
@@ -472,7 +477,8 @@ ID_EX1_reg_inst : ENTITY work.id_ex1_register
         reg_write_address_2_out => ex1_reg_write_address_2,
         next_pc_out => ex1_next_pc,
         read_reg_1_out => ex1_read_reg_1,
-        read_reg_2_out  => ex1_read_reg_2
+        read_reg_2_out  => ex1_read_reg_2,
+        input_port_out => ex1_input_port
     );
 execute1_stage_inst : ENTITY work.execute1_stage
     PORT MAP (
@@ -490,7 +496,7 @@ execute1_stage_inst : ENTITY work.execute1_stage
         corrected_ccr_flags_out => ex1_corrected_ccr,
 
         -- input port
-        input_port_data_in => in_port,
+        input_port_data_in => ex1_input_port,
 
         -- forwarding control
         RSRC1_SEL => fwd_RSRC1_SEL,

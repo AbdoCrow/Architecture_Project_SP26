@@ -33,6 +33,7 @@ ENTITY id_ex1_register IS
         next_pc_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         read_reg_1_in : IN reg_idx_t;
         read_reg_2_in : IN reg_idx_t;
+        input_port_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
 
         LOAD_FLAGS_OUT : OUT STD_LOGIC;
         PC_WRITE_EN_OUT : OUT STD_LOGIC;
@@ -58,7 +59,8 @@ ENTITY id_ex1_register IS
         reg_write_address_2_out : OUT reg_idx_t;
         next_pc_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         read_reg_1_out : OUT reg_idx_t;
-        read_reg_2_out : OUT reg_idx_t
+        read_reg_2_out : OUT reg_idx_t;
+        input_port_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
 END ENTITY id_ex1_register;
 
@@ -92,6 +94,7 @@ BEGIN
             next_pc_out <= (OTHERS => '0');
             read_reg_1_out <= (OTHERS => '0');
             read_reg_2_out <= (OTHERS => '0');
+            input_port_out <= (OTHERS => '0');
         ELSIF rising_edge(clk) THEN
             IF enable = '1' THEN
                 LOAD_FLAGS_OUT <= LOAD_FLAGS_IN;
@@ -119,6 +122,7 @@ BEGIN
                 next_pc_out <= next_pc_in;
                 read_reg_1_out <= read_reg_1_in;
                 read_reg_2_out <= read_reg_2_in;
+                input_port_out <= input_port_in;
             END IF;
         END IF;
     END PROCESS;

@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 # USER CONFIGURATION — edit these two lines before running
 # -----------------------------------------------------------------------------
-set ASM_FILE  "testcases/test3.asm"     ;# path to your .asm source file
+set ASM_FILE  "testcases/TwoOperand.asm"     ;# path to your .asm source file
 set RUN_TIME  "500 ns"           ;# simulation duration after reset release
 set CLOCK_PERIOD "50 ns"      ;# clock period (for stimulus timing)
 
@@ -122,14 +122,14 @@ add wave -noupdate -label "RSRC1_SEL" -radix unsigned  sim:/processor/fwd_RSRC1_
 add wave -noupdate -label "RSRC2_SEL" -radix unsigned  sim:/processor/fwd_RSRC2_SEL
 add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
 
-add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
-add wave -radix hex  -r sim:/processor/decode_stage_inst/*
-# add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
-# add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
+# add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
+# add wave -radix hex  -r sim:/processor/decode_stage_inst/*
+add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
+add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
 # add wave -radix hex  -r sim:/processor/memory_stage_inst/*
-add wave -radix hex  -r sim:/processor/memory_inst/memory_array
-add wave -radix hex  -r sim:/processor/interrupt_handler_inst/*
-add wave -radix hex  -r sim:/processor/hazard_control_unit_inst/*
+# add wave -radix hex  -r sim:/processor/memory_inst/memory_array
+# add wave -radix hex  -r sim:/processor/interrupt_handler_inst/*
+# add wave -radix hex  -r sim:/processor/hazard_control_unit_inst/*
 
 add wave -radix hex  -r sim:/processor/ex1_HLT
 add wave -radix hex  -r sim:/processor/dec_HLT
@@ -178,8 +178,9 @@ force -freeze sim:/processor/reset  0 0
 # =============================================================================
 # do Test1.do
 # do Test2.do
-do Test3.do
-
+# do Test3.do
+# do OneOperand.do
+do TwoOperand.do
 # run $RUN_TIME
 # =============================================================================
 # STEP 7 — Fit waveform window

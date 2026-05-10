@@ -78,5 +78,7 @@ BEGIN
     
     output_flags(CARRY_FLAG_BIT) <= carry_out; 
     output_flags(NEGATIVE_FLAG_BIT) <= result_int(31) WHEN ALUOP = ALU_OP_NOT_A OR ALUOP = ALU_OP_AND or ALUOP = ALU_OP_SUB or ALUOP = ALU_OP_INC_A or ALUOP = ALU_OP_ADD  ELSE prev_flags(NEGATIVE_FLAG_BIT); 
-    output_flags(ZERO_FLAG_BIT) <= '1' WHEN result_int = x"00000000" AND (ALUOP = ALU_OP_NOT_A OR ALUOP = ALU_OP_AND or ALUOP = ALU_OP_SUB or ALUOP = ALU_OP_INC_A or ALUOP = ALU_OP_ADD) ELSE prev_flags(ZERO_FLAG_BIT); 
+    output_flags(ZERO_FLAG_BIT) <= '1' WHEN result_int = x"00000000" AND (ALUOP = ALU_OP_NOT_A OR ALUOP = ALU_OP_AND or ALUOP = ALU_OP_SUB or ALUOP = ALU_OP_INC_A or ALUOP = ALU_OP_ADD) 
+                                        ELSE '0' WHEN ALUOP = ALU_OP_NOT_A OR ALUOP = ALU_OP_AND or ALUOP = ALU_OP_SUB or ALUOP = ALU_OP_INC_A or ALUOP = ALU_OP_ADD 
+                                        ELSE prev_flags(ZERO_FLAG_BIT); 
 END Behavioral;

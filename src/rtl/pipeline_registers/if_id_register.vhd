@@ -7,13 +7,15 @@ ENTITY if_id_register IS
         reset : IN STD_LOGIC;
         enable : IN STD_LOGIC;
 
+        input_port_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         instr_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         next_pc_in : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
         branch_prediction_in : IN STD_LOGIC;
 
         instr_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
         next_pc_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
-        branch_prediction_out : OUT STD_LOGIC
+        branch_prediction_out : OUT STD_LOGIC;
+        input_port_out : OUT STD_LOGIC_VECTOR(31 DOWNTO 0)
     );
 END ENTITY if_id_register;
 
@@ -25,11 +27,13 @@ BEGIN
             instr_out <= (OTHERS => '0');
             next_pc_out <= (OTHERS => '0');
             branch_prediction_out <= '0';
+            input_port_out <= (OTHERS => '0');
         ELSIF rising_edge(clk) THEN
             IF enable = '1' THEN
                 instr_out <= instr_in;
                 next_pc_out <= next_pc_in;
                 branch_prediction_out <= branch_prediction_in;
+                input_port_out <= input_port_in;
             END IF;
         END IF;
     END PROCESS;
