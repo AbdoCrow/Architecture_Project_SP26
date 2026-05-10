@@ -67,7 +67,7 @@ BEGIN
         prev_flags <= "000"; -- No flags set
         ALUOP <= ALU_OP_SUB; -- SUB operation
         WAIT FOR CLK_PERIOD;
-        check_alu_results(x"FFFFFFFE", x"00000005", "110"); -- Expect -2, negative and carry flags set
+        check_alu_results(x"FFFFFFFE", x"00000005", "011"); -- Expect -2, negative and carry flags set
         REPORT "Test 2 passed: SUB operation with negative result" SEVERITY NOTE;
 
         -- Test 3: AND operation
@@ -117,7 +117,7 @@ BEGIN
         -- Test 8: SETC Operation
         A <= x"00000000"; -- 0 (ignored for SETC)
         B <= x"00000000"; -- 0 (ignored for SETC)
-        prev_flags <= "001"; --  Zero flag set
+        prev_flags <= "100"; --  Zero flag set
         ALUOP <= ALU_OP_SETC; -- SETC operation
         WAIT FOR CLK_PERIOD;
         check_alu_results(x"00000000", x"00000000", "101"); -- Expect no change, carry flag set

@@ -18,7 +18,7 @@ process(clk)
     BEGIN
         IF reset = '1' THEN
             output_reg <= (OTHERS => '0');
-        ELSIF rising_edge(clk) THEN
+        ELSIF falling_edge(clk) THEN
             IF enable = '1' THEN
                 output_reg <= output_port_in;
             ELSE 

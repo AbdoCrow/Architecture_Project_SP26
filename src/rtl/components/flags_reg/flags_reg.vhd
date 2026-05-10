@@ -14,7 +14,7 @@ END ENTITY flags_reg;
 ARCHITECTURE rtl OF flags_reg IS
 signal flags_reg : STD_LOGIC_VECTOR(2 DOWNTO 0) := (OTHERS => '0');
 BEGIN
-    PROCESS (clk, reset)
+    PROCESS (clk, reset,flag_wb, UPDATE_FLAGS)
     BEGIN
         IF reset = '1' THEN
             flags_reg <= (OTHERS => '0');

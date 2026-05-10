@@ -478,7 +478,7 @@ execute1_stage_inst : ENTITY work.execute1_stage
         reset => reset,
         ALU_OP => ex1_ALU_OP,
         ALU_INPUT_SEL => ex1_ALU_INPUT_SEL,
-        UPDATE_FLAGS => ex1_UPDATE_FLAGS,
+        UPDATE_FLAGS => wb_UPDATE_FLAGS,
 
         imm_offset_in  => ex1_imm_offset,
         alu_result_1_out  => ex1_alu_result_1,

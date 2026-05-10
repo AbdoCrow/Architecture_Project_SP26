@@ -123,6 +123,8 @@ add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
 # add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
 
 # add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
+# add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
+
 
 
 configure wave -namecolwidth  200
