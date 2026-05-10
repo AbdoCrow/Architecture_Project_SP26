@@ -142,6 +142,8 @@ ARCHITECTURE rtl OF processor IS
     signal ex2_mem_adr          : STD_LOGIC_VECTOR(31 DOWNTO 0);
     signal ex2_interrupt_adr    : int_idx_t;
     signal ex2_HLT_out          : STD_LOGIC;
+    signal ex2_UPDATE_FLAGS_OUT     : STD_LOGIC;
+    signal ex2_ALU_FLAGS_OUT       : STD_LOGIC_VECTOR(2 DOWNTO 0);
  
     -- =========================================================
     -- EX2/MEM -> MEM stage
@@ -232,7 +234,7 @@ forward_unit_inst : ENTITY work.forwarding_unit
         read_reg_1          => ex1_read_reg_1,
         read_reg_2          => ex1_read_reg_2,
 
-        EX1_UPDATE_FLAGS    => ex2_UPDATE_FLAGS, -- different naming convention between stages
+        EX1_UPDATE_FLAGS    => ex2_UPDATE_FLAGS_OUT, -- different naming convention between stages
         EX2_UPDATE_FLAGS    => mem_UPDATE_FLAGS,-- different naming convention between stages
         MEM_UPDATE_FLAGS    => wb_UPDATE_FLAGS, -- different naming convention between stages
 
@@ -504,7 +506,7 @@ execute1_stage_inst : ENTITY work.execute1_stage
         fwd_wb_data_1 => wb_data_1,
         fwd_wb_data_2  => wb_data_2,
 
-        fwd_ex2_flags => ex2_alu_flags,
+        fwd_ex2_flags => ex2_alu_flags_OUT,
         fwd_mem_flags => mem_alu_flags,
         flag_wb => wb_flag_wb,
 
@@ -578,7 +580,10 @@ execute2_stage_inst : ENTITY work.execute2_stage
         imm_offset_in => ex2_imm_offset,
         next_pc_in => ex2_next_pc,
         branch_prediction_in => ex2_branch_prediction,
-
+        ALU_flags_in => ex2_alu_flags,
+        ALU_FLAGS_OUT => ex2_ALU_FLAGS_OUT,
+        UPDATE_FLAGS_IN => ex2_UPDATE_FLAGS,
+        UPDATE_FLAGS_OUT => ex2_UPDATE_FLAGS_OUT,
         branch_result_out => ex2_branch_result,
         branch_prediction_out => ex2_branch_pred_out,
         correct_pc_value_out => ex2_correct_pc_value,
@@ -598,14 +603,14 @@ EX2_MEM_reg_inst : ENTITY work.ex2_mem_register
         MEM_WRITE_SEL_IN => ex2_MEM_WRITE_SEL,
         MEMW_IN => ex2_MEMW,
         MEMR_IN => ex2_MEMR,
-        UPDATE_FLAGS_IN => ex2_UPDATE_FLAGS,
+        UPDATE_FLAGS_IN => ex2_UPDATE_FLAGS_OUT,
         MEM_ADDRESS_SEL_IN => ex2_MEM_ADDRESS_SEL,
         OUTPUT_PORT_EN_IN => ex2_OUTPUT_PORT_EN,
         REG_WB_EN_1_IN => ex2_REG_WB_EN_1,
         REG_WB_EN_2_IN => ex2_REG_WB_EN_2,
 
         corrected_ccr_flags_in => ex2_corrected_ccr,
-        alu_flags_in  => ex2_alu_flags,
+        alu_flags_in  => ex2_alu_flags_OUT,
         alu_result_1_in => ex2_alu_result_1,
         alu_result_2_in => ex2_alu_result_2,
         mem_adr_in => ex2_mem_adr,

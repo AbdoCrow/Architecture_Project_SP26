@@ -56,6 +56,9 @@ begin
                 else
                     state <= WEAKLY_TAKEN;
                 end if ;
+            when others =>
+                state <= STRONGLY_NOT_TAKEN;
+                BRANCH_TAKEN <= '0';
         end case;
         end if;
     end process;
