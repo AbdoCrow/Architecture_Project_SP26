@@ -30,19 +30,11 @@ BEGIN
     memory_location_zero_out <= memory_array(0); -- For debugging purposes, always output the value at address 0
     process(clk)
     begin
-        if RESET = '1' then
-            mem_data_out <= memory_array(0); -- Output the first memory location on reset
-        elsif rising_edge(clk) then
-            if MEMORY_WRITE_EN = '1' then
-                -- Write data to memory
+        if rising_edge(clk) then
+            if MEMORY_WRITE_EN = '1' AND RESET = '0' then
                 memory_array(to_integer(unsigned(mem_addr))) <= mem_data_in;
-            end if;
-            if MEMORY_READ_EN = '1' then
-                -- Read data from memory 
-                mem_data_out <= memory_array(to_integer(unsigned(mem_addr)));
-            else
-                mem_data_out <= (others => '0');
             end if;
         end if;
     end process;
+    mem_data_out <= memory_array(0) WHEN RESET = '1' ELSE memory_array(to_integer(unsigned(mem_addr))) WHEN MEMORY_READ_EN = '1' ELSE (others => 'Z');
 END ARCHITECTURE rtl;

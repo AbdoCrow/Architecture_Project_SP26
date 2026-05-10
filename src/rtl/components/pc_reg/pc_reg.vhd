@@ -13,7 +13,7 @@ END ENTITY pc_reg;
 ARCHITECTURE rtl OF pc_reg IS
 SIGNAL pc_reg : STD_LOGIC_VECTOR(31 DOWNTO 0) := (OTHERS => '0');
 BEGIN
-process(clk)
+process(clk, enable, pc_in)
     BEGIN
         IF rising_edge(clk) THEN
             IF enable = '1' THEN

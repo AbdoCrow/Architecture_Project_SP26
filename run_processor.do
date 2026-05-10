@@ -10,6 +10,7 @@
 # -----------------------------------------------------------------------------
 set ASM_FILE  "testcases/test1.asm"     ;# path to your .asm source file
 set RUN_TIME  "3 us"           ;# simulation duration after reset release
+set CLOCK_PERIOD "100 ns"      ;# clock period (for stimulus timing)
 
 # Memory hierarchy path — find this with:
 #   find /processor -name mem
@@ -87,7 +88,6 @@ add wave -noupdate -label "OUT_PORT" -radix hex  sim:/processor/out_port
 add wave -noupdate -label "PC"   -radix hex  sim:/processor/pc_monitor
 add wave -noupdate -label "SP"   -radix hex  sim:/processor/sp_monitor
 add wave -noupdate -label "CCR"  -radix binary       sim:/processor/ccr_monitor
-# add wave -r sim:/processor/fetch_stage_inst/*
 # add wave -noupdate -label "RESET_VECTOR" -radix hex  sim:/processor/memory_inst/memory_location_zero_out
 
 # ---- Register file ----------------------------------------------------------
@@ -102,19 +102,20 @@ add wave -noupdate -label "R7" -radix hex  sim:/processor/r7_monitor
 
 # ---- Pipeline stage visibility (comment out if signals don't exist yet) -----
 # add wave -noupdate -label "IF  instr"    -radix hex  sim:/processor/fetch_instr
-# add wave -noupdate -label "IF  next_pc"  -radix hex  sim:/processor/fetch_next_pc
+add wave -noupdate -label "IF  next_pc"  -radix hex  sim:/processor/fetch_next_pc
 
 # add wave -noupdate -label "ID  instr"    -radix hex  sim:/processor/decode_instr
-# add wave -noupdate -label "ID  next_pc"  -radix hex  sim:/processor/dec_next_pc
+add wave -noupdate -label "ID  next_pc"  -radix hex  sim:/processor/dec_next_pc
 
-# add wave -noupdate -label "EX1 next_pc"  -radix hex  sim:/processor/ex1_next_pc
+add wave -noupdate -label "EX1 next_pc"  -radix hex  sim:/processor/ex1_next_pc
 
-# add wave -noupdate -label "EX2 next_pc"  -radix hex  sim:/processor/ex2_next_pc
+add wave -noupdate -label "EX2 next_pc"  -radix hex  sim:/processor/ex2_next_pc
 # add wave -noupdate -label "EX2 br_result"                     sim:/processor/ex2_branch_result
 # add wave -noupdate -label "EX2 correct_pc" -radix hex sim:/processor/ex2_correct_pc_value
 
-# add wave -noupdate -label "MEM next_pc"  -radix hex  sim:/processor/mem_next_pc
-# add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_address
+add wave -noupdate -label "MEM next_pc"  -radix hex  sim:/processor/mem_next_pc
+add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_address
+add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_addr
 
 add wave -noupdate -label "STALL"          sim:/processor/haz_STALL
 add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
@@ -124,6 +125,8 @@ add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
 
 # add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
 # add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
+add wave -r sim:/processor/fetch_stage_inst/*
+# add wave -r sim:/processor/memory_stage_inst/*
 
 
 
@@ -145,7 +148,7 @@ echo " Running reset then: $RUN_TIME"
 echo "============================================================"
 
 # 100 ns clock (50 ns half-period)
-force -freeze sim:/processor/clk   1 0, 0 {50 ns} -r 100ns
+force -freeze sim:/processor/clk   1 0, 0 {50 ns} -r $CLOCK_PERIOD
 
 # Drive IN_PORT to 0 by default; change mid-sim with:
 #   force -freeze sim:/processor/in_port 16#ABCD1234 0
@@ -153,13 +156,15 @@ force -freeze sim:/processor/in_port  16#00000000 0
 
 # Drive INTR low; raise it mid-sim with:
 #   force -freeze sim:/processor/intr_in 1 0
-#   run 100ns
+#   run $CLOCK_PERIOD
 #   force -freeze sim:/processor/intr_in 0 0
 force -freeze sim:/processor/intr_in 0 0
 
 # Assert reset for 2 cycles, then release
 force -freeze sim:/processor/reset  1 0
-run 200ns
+run $CLOCK_PERIOD
+run $CLOCK_PERIOD
+run $CLOCK_PERIOD
 force -freeze sim:/processor/reset  0 0
 
 # run $RUN_TIME
@@ -167,9 +172,10 @@ force -freeze sim:/processor/reset  0 0
 # =============================================================================
 # INPUT STIMULUS
 # =============================================================================
+do Test1.do
+# do Test2.do
 
-force -freeze sim:/processor/in_port 16#FFFFFFFF 0
-run $RUN_TIME
+# run $RUN_TIME
 # =============================================================================
 # STEP 7 — Fit waveform window
 # =============================================================================
