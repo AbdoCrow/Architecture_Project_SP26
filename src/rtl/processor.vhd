@@ -33,6 +33,7 @@ ARCHITECTURE rtl OF processor IS
     signal fetch_instr     : STD_LOGIC_VECTOR(31 DOWNTO 0);
     signal fetch_pc_out    : STD_LOGIC_VECTOR(31 DOWNTO 0);
     signal fetch_branch_prediction : STD_LOGIC;
+    signal fetch_cond_branch : STD_LOGIC;
  
     -- =========================================================
     -- IF/ID -> DECODE stage
@@ -194,6 +195,8 @@ ARCHITECTURE rtl OF processor IS
     -- Hazard unit outputs
     -- =========================================================
     signal haz_STALL            : STD_LOGIC;
+    signal haz_FETCH_STALL      : STD_LOGIC;
+    signal haz_DECODE_STALL     : STD_LOGIC;
     signal haz_FLUSH            : STD_LOGIC;
     signal haz_FETCH_MEMORY_HAZARD : STD_LOGIC;
     signal haz_ALLOW_HW_INT     : STD_LOGIC;
@@ -280,18 +283,19 @@ hazard_control_unit_inst : ENTITY work.hazard_control_unit
         EX1_PC_WRITE          => ex1_PC_WRITE_EN,
         EX2_PC_WRITE          => ex2_PC_WRITE_EN,
         MEM_PC_WRITE          => mem_PC_WRITE_EN,
-
-
+        DEC_PC_WRITE          => dec_PC_WRITE_EN,
         --interrupt hazard signals
         EX2_COND_BRANCH       => ex2_COND_BRANCH,
         EX1_COND_BRANCH       => ex1_COND_BRANCH,
         ID_COND_BRANCH        => dec_ID_COND_BRANCH,
-
+        IF_COND_BRANCH        => fetch_cond_branch,
 
         MULTICYCLE_STALL      => dec_MULTICYCLE_STALL,
         HARDWARE_INTERRUPT    => int_INT_REQUEST,
         ALLOW_HW_INT          => haz_ALLOW_HW_INT,
         STALL                 => haz_STALL,
+        FETCH_STALL           => haz_FETCH_STALL,
+        DECODE_STALL          => haz_DECODE_STALL,
         FLUSH                 => haz_FLUSH
     );
 Interrupt_handler_inst : ENTITY work.interrupt_handler
@@ -341,10 +345,11 @@ fetch_stage_inst : ENTITY work.fetch_stage
         FETCH_MEMORY_HAZARD => haz_FETCH_MEMORY_HAZARD,
         ALLOW_HW_INT => haz_ALLOW_HW_INT,
         pc_out   => fetch_pc_out,
-        branch_prediction_out  => fetch_branch_prediction
+        branch_prediction_out  => fetch_branch_prediction,
+        if_cond_branch => fetch_cond_branch
     );
 
-    IF_ID_enable <= NOT (haz_STALL OR ex2_HLT) OR haz_ALLOW_HW_INT;
+    IF_ID_enable <= NOT (haz_DECODE_STALL OR ex2_HLT) OR haz_ALLOW_HW_INT;
 IF_ID_reg_inst : ENTITY work.if_id_register
     PORT MAP (  
         clk => clk,
@@ -375,7 +380,7 @@ decode_stage_inst : ENTITY work.decode_stage
         REG_WB_EN_2_IN         => wb_REG_WB_EN_2,
 
         -- Inputs from Hazard unit
-        STALL                  => haz_STALL,
+        STALL                  => haz_decode_STALL,
         FLUSH                  => haz_FLUSH,
         
         -- Control signals to execute stage

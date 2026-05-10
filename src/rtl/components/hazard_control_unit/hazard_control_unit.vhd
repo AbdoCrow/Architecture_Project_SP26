@@ -22,43 +22,56 @@ ENTITY hazard_control_unit IS
         CORRECT_PC : OUT STD_LOGIC;
 
         -- pc write hazard signals
+        DEC_PC_WRITE : IN STD_LOGIC;
         EX1_PC_WRITE : IN STD_LOGIC;
         EX2_PC_WRITE : IN STD_LOGIC;
         MEM_PC_WRITE : IN STD_LOGIC;
-
-
         --interrupt hazard signals
         EX2_COND_BRANCH : IN STD_LOGIC;
         EX1_COND_BRANCH : IN STD_LOGIC;
         ID_COND_BRANCH : IN STD_LOGIC;
+        IF_COND_BRANCH : IN STD_LOGIC;
 
         MULTICYCLE_STALL : IN STD_LOGIC;
         HARDWARE_INTERRUPT : IN STD_LOGIC;
         ALLOW_HW_INT : OUT STD_LOGIC;
         STALL : OUT STD_LOGIC;
+        FETCH_STALL: OUT STD_LOGIC;
+        DECODE_STALL: OUT STD_LOGIC;
         FLUSH : OUT STD_LOGIC
     );
 END ENTITY hazard_control_unit;
 
 ARCHITECTURE rtl OF hazard_control_unit IS
+SIGNAL DECODESTALL : STD_LOGIC;
+SIGNAL FETCHSTALL : STD_LOGIC;
 BEGIN
     -- Structural hazard: Memory access in EX1 stage causes a stall in IF stage
     FETCH_MEMORY_HAZARD <= MEMORY;
-
+    STALL <= FETCHSTALL OR DECODESTALL;
+    FETCH_STALL <= FETCHSTALL;
+    DECODE_STALL <= DECODESTALL;
     -- PC write hazard: If there is a pending PC write in EX1, EX2, or MEM stage, stall the IF stage to prevent overwriting the PC with an incorrect value
     -- Load-use hazard: If EX1 stage is performing a memory read and the destination register matches either source register in ID stage, stall the pipeline
-    PROCESS(read_reg_1, read_reg_2, ID_EX1_WRITE_ADDRESS, EX1_MEMR, EX1_EX2_WRITE_ADDRESS, EX2_MEMR, EX1_PC_WRITE, EX2_PC_WRITE, HARDWARE_INTERRUPT)
+    PROCESS(read_reg_1, read_reg_2, ID_EX1_WRITE_ADDRESS, EX1_MEMR, EX1_EX2_WRITE_ADDRESS, EX2_MEMR)
     BEGIN
         IF (EX1_MEMR = '1'  AND (ID_EX1_WRITE_ADDRESS = read_reg_1 OR ID_EX1_WRITE_ADDRESS = read_reg_2)) OR 
-            (EX2_MEMR = '1' AND (EX1_EX2_WRITE_ADDRESS = read_reg_1 OR EX1_EX2_WRITE_ADDRESS = read_reg_2)) OR 
-            (EX1_PC_WRITE = '1' OR EX2_PC_WRITE = '1') or
-            HARDWARE_INTERRUPT = '1' THEN
-            STALL <= '1';
+            (EX2_MEMR = '1' AND (EX1_EX2_WRITE_ADDRESS = read_reg_1 OR EX1_EX2_WRITE_ADDRESS = read_reg_2))
+         THEN
+            DECODESTALL <= '1';
         ELSE
-            STALL <= '0';
+            DECODESTALL <= '0';
         END IF;
     END PROCESS;
-
+    PROCESS(EX1_PC_WRITE, EX2_PC_WRITE, DEC_PC_WRITE, HARDWARE_INTERRUPT)
+    BEGIN
+        IF (EX1_PC_WRITE = '1' OR EX2_PC_WRITE = '1' OR DEC_PC_WRITE = '1') OR
+            HARDWARE_INTERRUPT = '1' THEN
+            FETCHSTALL <= '1';
+        ELSE
+            FETCHSTALL <= '0';
+        END IF;
+    END PROCESS;
     -- Control hazard: If there is a branch misprediction, flush the pipeline and correct the PC
     PROCESS(branch_prediction, branch_result)
     BEGIN
@@ -78,7 +91,7 @@ BEGIN
         END IF;
     END PROCESS;
     -- Hardware interrupt hazard: If there is a hardware interrupt and there are no pending control hazards or multicycle stalls, allow the interrupt to be serviced
-    PROCESS(HARDWARE_INTERRUPT, EX2_COND_BRANCH, EX1_COND_BRANCH, ID_COND_BRANCH, MULTICYCLE_STALL, MEM_PC_WRITE, EX1_PC_WRITE, EX2_PC_WRITE)
+    PROCESS(HARDWARE_INTERRUPT, EX2_COND_BRANCH, EX1_COND_BRANCH, ID_COND_BRANCH, MULTICYCLE_STALL, MEM_PC_WRITE, EX1_PC_WRITE, EX2_PC_WRITE, IF_COND_BRANCH, DEC_PC_WRITE)
     BEGIN
         IF (HARDWARE_INTERRUPT = '1' 
         AND EX2_COND_BRANCH = '0' 
@@ -88,6 +101,8 @@ BEGIN
         AND MEM_PC_WRITE = '0'
         AND EX1_PC_WRITE = '0'
         AND EX2_PC_WRITE = '0'
+        AND DEC_PC_WRITE = '0'
+        AND IF_COND_BRANCH = '0'
         ) THEN
             ALLOW_HW_INT <= '1';
         ELSE

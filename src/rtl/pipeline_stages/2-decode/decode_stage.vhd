@@ -116,8 +116,8 @@ BEGIN
         read_reg_2_out <= RSRC2;
 
         -- Control unit
-    OPCODE_MUX <= OPCODE_NOP WHEN (STALL = '1' OR FLUSH = '1') ELSE instr_in(31 DOWNTO 27);
-    ID_COND_BRANCH <= '0' when (STALL = '1' OR FLUSH = '1') else instr_in(BR_HINT_COND_BIT);
+    OPCODE_MUX <= OPCODE_NOP WHEN (FLUSH = '1') ELSE instr_in(31 DOWNTO 27);
+    ID_COND_BRANCH <= instr_in(BR_HINT_COND_BIT);
     control_unit_inst : entity work.control_unit
         PORT MAP (
             OPCODE => OPCODE_MUX,
