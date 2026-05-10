@@ -71,10 +71,9 @@ class RISCAssembler:
 
         # Instruction classification
         self.type1_no_op       = ['NOP', 'HLT', 'SETC', 'RET', 'RTI']
-        self.type1_one_op      = ['NOT', 'INC', 'IN', 'OUT']
+        self.type1_one_op      = ['NOT', 'INC']
         self.type2_three_op    = ['ADD', 'SUB', 'AND']
         self.type2_imm         = ['IADD']
-        self.type3_single      = ['PUSH', 'POP']
         self.type3_imm         = ['LDM']
         self.type4_imm         = ['JZ', 'JN', 'JC', 'JMP', 'CALL']
         self.type4_index       = ['INT']
@@ -346,7 +345,16 @@ class RISCAssembler:
                     raise ValueError(f"{mnemonic} requires a register operand")
                 rop = self.parse_register(parts[1])
                 instructions.append(opcode + rop + rop + '0' * 21)
-
+            elif mnemonic == 'IN':
+                if len(parts) < 2:
+                    raise ValueError(f"{mnemonic} requires a register operand")
+                rdst = self.parse_register(parts[1])
+                instructions.append(opcode + '000' + rdst + '0' * 21)
+            elif mnemonic == 'OUT':
+                if len(parts) < 2:
+                    raise ValueError(f"{mnemonic} requires a register operand")
+                rsrc = self.parse_register(parts[1])
+                instructions.append(opcode + '000' + rsrc + '0' * 21)
             elif mnemonic == 'MOV':
                 if len(parts) < 3:
                     raise ValueError("MOV requires 2 register operands")
@@ -376,19 +384,19 @@ class RISCAssembler:
                 rd  = self.parse_register(parts[1])
                 rs  = self.parse_register(parts[2])
                 imm = self.parse_immediate(parts[3], 16, allow_labels=True)
-                instructions.append(opcode + rd + '000' + rs + '00' + imm)
+                instructions.append(opcode + rd + rs +'000' + '00' + imm)
 
             elif mnemonic == 'PUSH':
                 if len(parts) < 2:
                     raise ValueError("PUSH requires a register operand")
-                rop = self.parse_register(parts[1])
-                instructions.append(opcode + rop + rop + '0' * 21)
+                rsrc = self.parse_register(parts[1])
+                instructions.append(opcode + '000' + rsrc + '0' * 21)
 
             elif mnemonic == 'POP':
                 if len(parts) < 2:
                     raise ValueError("POP requires a register operand")
-                rop = self.parse_register(parts[1])
-                instructions.append(opcode + rop + rop + '0' * 21)
+                rdst = self.parse_register(parts[1])
+                instructions.append(opcode + rdst + '000' + '0' * 21)
 
             elif mnemonic in self.type3_imm:
                 if len(parts) < 3:

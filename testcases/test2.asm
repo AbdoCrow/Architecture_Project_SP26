@@ -52,10 +52,10 @@ inc r1           #should not be executed
 
 # Load use
 .ORG 70
-IADD R1, R1, 10  #R1=80
+IADD R1, R1, 10  #R1=85
 SUB R7, R1, R1   #Z=1, N=0
-PUSH R1          #SP=FFD, M[FFE]=80
-POP R1           #SP=FFE, R1=80
+PUSH R1          #SP=FFD, M[FFE]=85
+POP R1           #SP=FFE, R1=85
 JZ 80            #Taken
 INC R1 		 #try hardware interrupt when fetching this
 
@@ -66,7 +66,7 @@ JMP 700          #jump taken
 
 #check on load use
 .ORG 700
-ADD R7, R0, R1   #R7=80
+ADD R7, R0, R1   #R7=85
 POP R6           #R6=300, SP=FFF, try hardware interrupt here
 Call 300         #SP=FFE, M[FFF]=next PC
 INC R6	         #R6=401, this statement shouldn't be executed till call returns, C--> 0, N-->0, Z-->0

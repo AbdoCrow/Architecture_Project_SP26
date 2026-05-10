@@ -9,7 +9,7 @@
 # USER CONFIGURATION — edit these two lines before running
 # -----------------------------------------------------------------------------
 set ASM_FILE  "testcases/test2.asm"     ;# path to your .asm source file
-set RUN_TIME  "3 us"           ;# simulation duration after reset release
+set RUN_TIME  "1 us"           ;# simulation duration after reset release
 set CLOCK_PERIOD "100 ns"      ;# clock period (for stimulus timing)
 
 # Memory hierarchy path — find this with:
