@@ -83,7 +83,7 @@ PACKAGE isa_defs_pkg IS
     CONSTANT MEM_WRITE_ALU_DATA : mem_write_sel_t := "00";
     CONSTANT MEM_WRITE_PC_DATA : mem_write_sel_t := "01";
     CONSTANT MEM_WRITE_FLAGS_DATA : mem_write_sel_t := "10";
-    CONSTANT MEM_WRITE_RSVD : mem_write_sel_t := "11";
+    CONSTANT MEM_WRITE_PC_INTR : mem_write_sel_t := "11";
 
     CONSTANT MEM_ADDRESS_CALC : mem_address_sel_t := "00";
     CONSTANT MEM_ADDRESS_INT_VECTOR : mem_address_sel_t := "01";

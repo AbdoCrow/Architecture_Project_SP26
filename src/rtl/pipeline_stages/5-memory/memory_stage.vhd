@@ -48,7 +48,8 @@ mem_address <= mem_adr_in when MEM_ADDRESS_SEL_IN = MEM_ADDRESS_CALC else
                 SP_VALUE when MEM_ADDRESS_SEL_IN = MEM_ADDRESS_SP_PUSH else
                 SP_PLUS_1_VALUE; -- I think this is wrong, should be SP_VALUE probably
 mem_write_data_out <= alu_result_1_in WHEN MEM_WRITE_SEL_IN = MEM_WRITE_ALU_DATA ELSE
-                     next_pc_in WHEN MEM_WRITE_SEL_IN = MEM_WRITE_PC_DATA ELSE
+                    next_pc_in WHEN MEM_WRITE_SEL_IN = MEM_WRITE_PC_DATA ELSE
+                    std_logic_vector(unsigned(next_pc_in) - 1) WHEN MEM_WRITE_SEL_IN = MEM_WRITE_PC_INTR ELSE
                      (28 downto 0 => '0') & corrected_ccr_flags_in;
 sp_unit_inst: entity work.sp_unit
     port map (

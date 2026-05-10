@@ -342,7 +342,7 @@ BEGIN
         WAIT FOR CLK_PERIOD;
         check_ALU(ALU_OP_PASS, ALU_INPUT_RSRC2, JMP_FLAG_NONE, '0');
         check_WriteBack('0', '0', '0', '0');
-        check_MEM('0', '1', MEM_ADDRESS_SP_PUSH, MEM_WRITE_PC_DATA, '1');
+        check_MEM('0', '1', MEM_ADDRESS_SP_PUSH, MEM_WRITE_PC_INTR, '1');
         check_HLT('0');
         check_OutputPort('0');
         check_Multicycle('1', MULTICYCLE_INT2);

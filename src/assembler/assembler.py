@@ -1,21 +1,4 @@
 #!/usr/bin/env python3
-"""
-RISC Processor Assembler - Complete System
-Converts assembly code to machine code (.mem format)
-Compatible with VHDL memory loader
-
-Von Neumann memory layout:
-  0x000  reset vector       (address of first instruction, always 0x004
-                             unless overridden by a .ORG before any code)
-  0x001  INT 0 handler vector
-  0x002  INT 1 handler vector
-  0x003  hardware-interrupt vector (reserved; written by .INT_VECTOR directives)
-  0x004+ instructions / data
-
-Author: Architecture Project
-Date: 2025
-"""
-
 import re
 import sys
 from typing import Dict, List, Tuple, Optional
