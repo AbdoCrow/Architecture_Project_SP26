@@ -6,23 +6,38 @@
 # ---------- Don't forget to Reset before you start anything ---------- #
 
 .ORG 0  #this means the the following line would be  at address  0 , and this is the reset address
-FF
+300
 
-.ORG FF
+.ORG 300
 
-IN R1             #add 5 in R1
-IN R2             #add 19 in R2
-IN R3             #FFFFFFFF
-IN R4             #FFFFF320
-MOV R3, R5        #R5 = FFFFFFFF , flags no change
-ADD R4,R1,R4      #R4 = FFFFF325 , C-->0, N-->1, Z-->0
-SUB R6,R5,R4      #R6 = 00000CDA , C-->1, N-->0, Z-->0 carry as not borrow
-AND R4,R7,R4      #R4 = 00000000 , C-->no change, N-->0, Z-->1
-IADD R2,R2,FFFF   #R2 = 00010018 (C = 0,N,Z= 0) OR R2=18 and C = 1 if implementing sign extend
-SWAP R2, R4
-ADD R2,R1,R2      #R2 = 5 (C = 0, N = 0, Z = 0)
-ADD R6,R4,R2      #R6 = 0001001D
-IADD R6, R6, 2    #R6 = 0001001F
-AND R3, R2, R6    #R3 = 00000005
+IN R2            #R2=19 add 19 in R2
+IN R3            #R3=FFFFFFFF
+IN R4            #R4=FFFFF320
+LDM R1,5         #R1=5
+PUSH R1          #SP=FFE,M[FFF]=5
+PUSH R2          #SP=FFD,M[FFE]=19
+POP R1           #SP=FFE,R1=19
+POP R2           #SP=FFF,R2=5
+
+# Load use & Memory to ALU
+ADD R5, R2, R1   #R5=1E
+
+IN R5            #R5=10
+STD R2,200(R5)   #M[210]=5  (address is hexa)
+
+STD R1,201(R5)   #M[211]=19 (address is hexa)
+LDD R3,201(R5)   #R3=19
+LDD R4,200(R5)   #R4=5
+
+# Load use & memory to ALU
+ADD R5, R4, R3   #R5=1E
+
+# Load use & Load use at load & mem2alu
+IN R5            #R5= 10
+IN R2            #R2=19
+STD R4, 200(R2)  #M[219]=5
+LDD R3, 201(R5)  #R3=19
+LDD R2, 200(R3)  #R2=5
+ADD R2, R2, R3   #R2=1E
 
 HLT

@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 # USER CONFIGURATION — edit these two lines before running
 # -----------------------------------------------------------------------------
-set ASM_FILE  "testcases/TwoOperand.asm"     ;# path to your .asm source file
+set ASM_FILE  "testcases/Memory.asm"     ;# path to your .asm source file
 set RUN_TIME  "500 ns"           ;# simulation duration after reset release
 set CLOCK_PERIOD "50 ns"      ;# clock period (for stimulus timing)
 
@@ -180,7 +180,8 @@ force -freeze sim:/processor/reset  0 0
 # do Test2.do
 # do Test3.do
 # do OneOperand.do
-do TwoOperand.do
+# do TwoOperand.do
+do Memory.do
 # run $RUN_TIME
 # =============================================================================
 # STEP 7 — Fit waveform window
