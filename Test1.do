@@ -21,4 +21,4 @@ run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
-
+wave zoom full

@@ -8,9 +8,9 @@
 # -----------------------------------------------------------------------------
 # USER CONFIGURATION — edit these two lines before running
 # -----------------------------------------------------------------------------
-set ASM_FILE  "testcases/test2.asm"     ;# path to your .asm source file
-set RUN_TIME  "1 us"           ;# simulation duration after reset release
-set CLOCK_PERIOD "100 ns"      ;# clock period (for stimulus timing)
+set ASM_FILE  "testcases/test3.asm"     ;# path to your .asm source file
+set RUN_TIME  "500 ns"           ;# simulation duration after reset release
+set CLOCK_PERIOD "50 ns"      ;# clock period (for stimulus timing)
 
 # Memory hierarchy path — find this with:
 #   find /processor -name mem
@@ -88,7 +88,6 @@ add wave -noupdate -label "HLT" -radix binary  sim:/processor/ex2_HLT
 add wave -noupdate -label "PC"   -radix hex  sim:/processor/pc_monitor
 add wave -noupdate -label "SP"   -radix hex  sim:/processor/sp_monitor
 add wave -noupdate -label "CCR"  -radix binary       sim:/processor/ccr_monitor
-# add wave -noupdate -label "RESET_VECTOR" -radix hex  sim:/processor/memory_inst/memory_location_zero_out
 
 # ---- Register file ----------------------------------------------------------
 add wave -noupdate -label "R0" -radix hex  sim:/processor/r0_monitor
@@ -101,7 +100,7 @@ add wave -noupdate -label "R6" -radix hex  sim:/processor/r6_monitor
 add wave -noupdate -label "R7" -radix hex  sim:/processor/r7_monitor
 
 # ---- Pipeline stage visibility (comment out if signals don't exist yet) -----
-# add wave -noupdate -label "IF  instr"    -radix hex  sim:/processor/fetch_instr
+add wave -noupdate -label "IF  instr"    -radix hex  sim:/processor/fetch_instr
 add wave -noupdate -label "IF  next_pc"  -radix hex  sim:/processor/fetch_next_pc
 
 # add wave -noupdate -label "ID  instr"    -radix hex  sim:/processor/decode_instr
@@ -119,16 +118,18 @@ add wave -noupdate -label "MEM next_pc"  -radix hex  sim:/processor/mem_next_pc
 
 add wave -noupdate -label "STALL"          sim:/processor/haz_STALL
 add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
-# add wave -noupdate -label "RSRC1_SEL" -radix unsigned  sim:/processor/fwd_RSRC1_SEL
-# add wave -noupdate -label "RSRC2_SEL" -radix unsigned  sim:/processor/fwd_RSRC2_SEL
-# add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
+add wave -noupdate -label "RSRC1_SEL" -radix unsigned  sim:/processor/fwd_RSRC1_SEL
+add wave -noupdate -label "RSRC2_SEL" -radix unsigned  sim:/processor/fwd_RSRC2_SEL
+add wave -noupdate -label "FLAG_SRC"  -radix unsigned  sim:/processor/fwd_FLAG_SRC_SEL
 
-# add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
-# add wave -radix hex  -r sim:/processor/decode_stage_inst/*
+add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
+add wave -radix hex  -r sim:/processor/decode_stage_inst/*
 # add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
 # add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
 # add wave -radix hex  -r sim:/processor/memory_stage_inst/*
-# add wave -radix hex  -r sim:/processor/memory_inst/*
+add wave -radix hex  -r sim:/processor/memory_inst/memory_array
+add wave -radix hex  -r sim:/processor/interrupt_handler_inst/*
+add wave -radix hex  -r sim:/processor/hazard_control_unit_inst/*
 
 add wave -radix hex  -r sim:/processor/ex1_HLT
 add wave -radix hex  -r sim:/processor/dec_HLT
@@ -152,8 +153,8 @@ echo "============================================================"
 echo " Running reset then: $RUN_TIME"
 echo "============================================================"
 
-# 100 ns clock (50 ns half-period)
-force -freeze sim:/processor/clk   1 0, 0 {50 ns} -r $CLOCK_PERIOD
+# 50 ns clock (25 ns half-period)
+force -freeze sim:/processor/clk   1 0, 0 {25 ns} -r $CLOCK_PERIOD
 
 # Drive IN_PORT to 0 by default; change mid-sim with:
 #   force -freeze sim:/processor/in_port 16#ABCD1234 0
@@ -176,7 +177,8 @@ force -freeze sim:/processor/reset  0 0
 # INPUT STIMULUS
 # =============================================================================
 # do Test1.do
-do Test2.do
+# do Test2.do
+do Test3.do
 
 # run $RUN_TIME
 # =============================================================================

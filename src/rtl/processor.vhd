@@ -317,32 +317,32 @@ memory_inst: ENTITY work.memory
     );
 fetch_stage_inst : ENTITY work.fetch_stage
     PORT MAP (
-        clk                      => clk,
-        reset                    => reset,
-        next_pc_out              => fetch_next_pc,
-        instr_out                => fetch_instr,
+        clk  => clk,
+        reset  => reset,
+        next_pc_out => fetch_next_pc,
+        instr_out => fetch_instr,
 
-        PC_WRITE_ENABLE          => mem_PC_WRITE_EN,
-        FETCH_STALL              => haz_STALL,
-        MULTICYCLE_STALL         => dec_MULTICYCLE_STALL,
-        MULTICYCLE_SEL           => dec_MULTICYCLE_SEL,
-        FLUSH                    => haz_FLUSH,
+        PC_WRITE_ENABLE  => mem_PC_WRITE_EN,
+        FETCH_STALL   => haz_STALL,
+        MULTICYCLE_STALL   => dec_MULTICYCLE_STALL,
+        MULTICYCLE_SEL  => dec_MULTICYCLE_SEL,
+        FLUSH => haz_FLUSH,
 
-        CORRECT_PC               => haz_CORRECT_PC,
-        correct_pc_value         => ex2_correct_pc_value,
-        fetched_instruction_in   => mem_data_out,
-        loaded_pc_in             => mem_data_out,
-        DECODE_INT_TARGET_IDX    => dec_INT_TARGET_ADDR,
-        COND_BRANCH              => ex2_COND_BRANCH,
-        BRANCH_TAKEN             => ex2_branch_result,
-        HLT                      => ex2_HLT,
-        FETCH_MEMORY_HAZARD      => haz_FETCH_MEMORY_HAZARD,
-        ALLOW_HW_INT             => haz_ALLOW_HW_INT,
-        pc_out                   => fetch_pc_out,
-        branch_prediction_out    => fetch_branch_prediction
+        CORRECT_PC  => haz_CORRECT_PC,
+        correct_pc_value   => ex2_correct_pc_value,
+        fetched_instruction_in => mem_data_out,
+        loaded_pc_in => mem_data_out,
+        DECODE_INT_TARGET_IDX  => dec_INT_TARGET_ADDR,
+        COND_BRANCH  => ex2_COND_BRANCH,
+        BRANCH_TAKEN=> ex2_branch_result,
+        HLT=> ex2_HLT,
+        FETCH_MEMORY_HAZARD => haz_FETCH_MEMORY_HAZARD,
+        ALLOW_HW_INT => haz_ALLOW_HW_INT,
+        pc_out   => fetch_pc_out,
+        branch_prediction_out  => fetch_branch_prediction
     );
 
-    IF_ID_enable <= NOT (haz_STALL OR ex2_HLT);
+    IF_ID_enable <= NOT (haz_STALL OR ex2_HLT) OR haz_ALLOW_HW_INT;
 IF_ID_reg_inst : ENTITY work.if_id_register
     PORT MAP (  
         clk => clk,
