@@ -8,7 +8,7 @@
 # -----------------------------------------------------------------------------
 # USER CONFIGURATION — edit these two lines before running
 # -----------------------------------------------------------------------------
-set ASM_FILE  "testcases/test1.asm"     ;# path to your .asm source file
+set ASM_FILE  "testcases/test2.asm"     ;# path to your .asm source file
 set RUN_TIME  "3 us"           ;# simulation duration after reset release
 set CLOCK_PERIOD "100 ns"      ;# clock period (for stimulus timing)
 
@@ -114,8 +114,8 @@ add wave -noupdate -label "EX2 next_pc"  -radix hex  sim:/processor/ex2_next_pc
 # add wave -noupdate -label "EX2 correct_pc" -radix hex sim:/processor/ex2_correct_pc_value
 
 add wave -noupdate -label "MEM next_pc"  -radix hex  sim:/processor/mem_next_pc
-add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_address
-add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_addr
+# add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_address
+# add wave -noupdate -label "MEM address"  -radix hex  sim:/processor/mem_addr
 
 add wave -noupdate -label "STALL"          sim:/processor/haz_STALL
 add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
@@ -125,8 +125,9 @@ add wave -noupdate -label "FLUSH"          sim:/processor/haz_FLUSH
 
 # add wave -radix hex -r sim:/processor/execute1_stage_inst/* 
 # add wave -radix hex -r sim:/processor/execute2_stage_inst/* 
-add wave -r sim:/processor/fetch_stage_inst/*
-# add wave -r sim:/processor/memory_stage_inst/*
+# add wave -radix hex  -r sim:/processor/fetch_stage_inst/*
+# add wave -radix hex  -r sim:/processor/memory_stage_inst/*
+# add wave -radix hex  -r sim:/processor/memory_inst/*
 
 
 
@@ -160,10 +161,8 @@ force -freeze sim:/processor/in_port  16#00000000 0
 #   force -freeze sim:/processor/intr_in 0 0
 force -freeze sim:/processor/intr_in 0 0
 
-# Assert reset for 2 cycles, then release
+# Assert reset for 1 cycle, then release
 force -freeze sim:/processor/reset  1 0
-run $CLOCK_PERIOD
-run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 force -freeze sim:/processor/reset  0 0
 
@@ -172,8 +171,8 @@ force -freeze sim:/processor/reset  0 0
 # =============================================================================
 # INPUT STIMULUS
 # =============================================================================
-do Test1.do
-# do Test2.do
+# do Test1.do
+do Test2.do
 
 # run $RUN_TIME
 # =============================================================================

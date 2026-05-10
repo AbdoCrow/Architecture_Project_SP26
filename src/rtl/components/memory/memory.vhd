@@ -19,7 +19,8 @@ ENTITY memory IS
         MEMORY_READ_EN : IN STD_LOGIC;
         MEMORY_WRITE_EN : IN STD_LOGIC;
         --debug 
-        memory_location_zero_out : OUT STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0)
+        memory_location_zero_out : OUT STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0);
+        memory_location_stack_out : OUT STD_LOGIC_VECTOR(DATA_WIDTH - 1 DOWNTO 0)
     );
 END ENTITY memory;
 
@@ -28,6 +29,7 @@ type memory_array_type is array (0 to MEMORY_SIZE - 1) of STD_LOGIC_VECTOR(DATA_
 signal memory_array : memory_array_type := (others => (others => '0'));
 BEGIN
     memory_location_zero_out <= memory_array(0); -- For debugging purposes, always output the value at address 0
+    memory_location_stack_out <= memory_array(4095); -- For debugging purposes, always output the value at address 4095
     process(clk)
     begin
         if rising_edge(clk) then

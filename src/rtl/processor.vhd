@@ -645,7 +645,7 @@ Memory_Stage_inst : ENTITY work.memory_stage
         MEMW_IN => mem_MEMW,
         MEMR_IN => mem_MEMR,
         MEM_ADDRESS_SEL_IN => mem_MEM_ADDRESS_SEL,
-        HLT => ex2_HLT_out,
+        HLT => ex2_HLT,
 
         corrected_ccr_flags_in => mem_corrected_ccr,
         alu_flags_in => mem_alu_flags,
