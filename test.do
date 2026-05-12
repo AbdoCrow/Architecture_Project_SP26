@@ -1,1 +1,0 @@
-do scripts/do_files/component_testbenches/sp_testbench.do

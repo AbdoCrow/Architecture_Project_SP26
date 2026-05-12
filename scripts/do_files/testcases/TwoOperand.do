@@ -1,18 +1,9 @@
-# =============================================================================
-# SP26 6-Stage Processor Simulation Script
-# Usage: do run_processor.do <program.asm> [run_time]
-#   or just:  do run_processor.do
-# and set ASM_FILE / RUN_TIME below manually.
-# =============================================================================
 
-# -----------------------------------------------------------------------------
-# USER CONFIGURATION — edit these two lines before running
-# -----------------------------------------------------------------------------
-set ASM_FILE  "testcases/test2.asm"     ;# path to your .asm source file
-set RUN_TIME  "500 ns"           ;# simulation duration after reset release
+set ASM_FILE  "testcases/TwoOperand.asm"     ;# path to your .asm source file
+set RUN_TIME  "500 ns"           ;#
 set CLOCK_PERIOD "50 ns"      ;# clock period (for stimulus timing)
 set MEM_FILE  [file rootname $ASM_FILE].mem
-
+set MEM_PATH  "/processor/memory_inst"
 # =============================================================================
 # STEP 1 — Compile design sources
 # =============================================================================
@@ -129,20 +120,13 @@ WaveRestoreZoom {0 ns} {200 ns}
 # =============================================================================
 echo ""
 echo "============================================================"
-echo " Running reset then: $RUN_TIME"
+echo " Running reset"
 echo "============================================================"
 
-# 50 ns clock (25 ns half-period)
 force -freeze sim:/processor/clk   1 0, 0 {25 ns} -r $CLOCK_PERIOD
 
-# Drive IN_PORT to 0 by default; change mid-sim with:
-#   force -freeze sim:/processor/in_port 16#ABCD1234 0
 force -freeze sim:/processor/in_port  16#00000000 0
 
-# Drive INTR low; raise it mid-sim with:
-#   force -freeze sim:/processor/intr_in 1 0
-#   run $CLOCK_PERIOD
-#   force -freeze sim:/processor/intr_in 0 0
 force -freeze sim:/processor/intr_in 0 0
 
 # Assert reset for 1 cycle, then release
@@ -150,30 +134,19 @@ force -freeze sim:/processor/reset  1 0
 run $CLOCK_PERIOD
 force -freeze sim:/processor/reset  0 0
 
-# run $RUN_TIME
-
 # =============================================================================
 # INPUT STIMULUS
 # =============================================================================
-# do Test1.do
-do Test2.do
-# do Test3.do
-# do OneOperand.do
-# do TwoOperand.do
-# do Memory.do
-# run $RUN_TIME
-# =============================================================================
-# STEP 6 — Fit waveform window
-# =============================================================================
-# wave zoom full
+force -freeze sim:/processor/in_port 16#00000005 0
+run $CLOCK_PERIOD
+force -freeze sim:/processor/in_port 16#00000019 0
+run $CLOCK_PERIOD
+force -freeze sim:/processor/in_port 16#FFFFFFFF 0
+run $CLOCK_PERIOD
+force -freeze sim:/processor/in_port 16#FFFFF320 0
+run $CLOCK_PERIOD
+run $RUN_TIME
+run $RUN_TIME
+run $RUN_TIME
 
-echo ""
-echo "============================================================"
-echo " Simulation complete."
-echo " Tip: to rerun with a different time, type:"
-echo "   run <time>"
-echo " To trigger an interrupt:"
-echo "   force -freeze sim:/processor/intr_in 1 0"
-echo "   run 100ns"
-echo "   force -freeze sim:/processor/intr_in 0 0"
-echo "============================================================"
+wave zoom full
