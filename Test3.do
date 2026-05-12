@@ -25,10 +25,6 @@ run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 
-force -freeze sim:/processor/intr_in 1 0
-force -freeze sim:/processor/in_port 16#00001111 0
-run $CLOCK_PERIOD
-force -freeze sim:/processor/intr_in 0 0
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
@@ -45,10 +41,6 @@ run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 
 
-force -freeze sim:/processor/intr_in 1 0
-force -freeze sim:/processor/in_port 16#00001111 0
-run $CLOCK_PERIOD
-force -freeze sim:/processor/intr_in 0 0
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
@@ -64,11 +56,6 @@ run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 
-force -freeze sim:/processor/intr_in 1 0
-force -freeze sim:/processor/in_port 16#00001111 0
-run $CLOCK_PERIOD
-force -freeze sim:/processor/intr_in 0 0
-run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
 run $CLOCK_PERIOD
